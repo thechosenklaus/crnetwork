@@ -64,7 +64,10 @@ RegisterCommand("painel",function(source,Message)
 
 			Information[Passport] = Permission
 
-			vCLIENT.Open(source,{ Permission,Members,Passport,vRP.HasPermission(Passport,Permission),HierarchyButtons,#Hierarchy })
+			
+			local HasPermission, Name = vRP.HasPermission(Passport, Permission)
+
+			vCLIENT.Open(source, { Name, Members, Passport, HasPermission, HierarchyButtons, #Hierarchy })
 		end
 	end
 end)

@@ -939,21 +939,24 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- HASPERMISSION
 -----------------------------------------------------------------------------------------------------------------------------------------
-function vRP.HasPermission(Passport,Permission,Level)
-	local PermissionParts = splitString(Permission,"-")
-	if PermissionParts[2] then
-		Permission,Level = PermissionParts[1],parseInt(PermissionParts[2])
-	end
+function vRP.HasPermission(Passport, Permission, Level)
+    local PermissionParts = splitString(Permission, "-")
+    if PermissionParts[2] then
+        Permission, Level = PermissionParts[1], parseInt(PermissionParts[2])
+    end
 
-	if Groups[Permission] then
-		local Passport = tostring(Passport)
-		local Consult = vRP.GetSrvData("Permissions:"..Permission,true)
-		local CurrentLevel = Consult[Passport]
+    if Groups[Permission] then
+        local Passport = tostring(Passport)
+        local Consult = vRP.GetSrvData("Permissions:" .. Permission, true)
+        local CurrentLevel = Consult[Passport]
 
-		return (CurrentLevel and (not Level or CurrentLevel <= Level)) and CurrentLevel or false
-	end
+        if CurrentLevel and (not Level or CurrentLevel <= Level) then
+            local Name = Groups[Permission]["Name"] or Permission
+            return CurrentLevel, Name
+        end
+    end
 
-	return false
+    return false, Permission
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- HASTABLE
