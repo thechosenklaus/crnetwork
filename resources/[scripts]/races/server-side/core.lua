@@ -66,8 +66,7 @@ end
 function Creative.Start(Mode, Route)
     local source = source
     local Passport = vRP.Passport(source)
-    if vRP.TakeItem(Passport,"races",1)
-    if not Passport then return false end
+    if not Passport and vRP.TakeItem(Passport, 'races', 1, true) then return false end
 
     local RaceKey = Mode .. ":" .. Route
     Cooldowns[RaceKey] = Cooldowns[RaceKey] or {}
@@ -86,8 +85,7 @@ function Creative.Start(Mode, Route)
     TriggerClientEvent("races:Start", source, Mode, Route)
     local RaceData = Races[Mode]
     local RouteData = RaceData["Routes"][Route]
-        return RouteData["Time"] or 60
-    end
+    return RouteData["Time"] or 60
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- RANKING
