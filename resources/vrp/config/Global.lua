@@ -11,7 +11,6 @@ CreatorCoords = vec4(-2006.95,2960.77,31.81,305.82)
 -- SERVERINFO
 -----------------------------------------------------------------------------------------------------------------------------------------
 Currency = "$"
-DiscordBot = false
 BaseMode = "steam"
 Whitelisted = false
 Liberation = "Token"
@@ -130,7 +129,7 @@ Theme = {
 		}
 	},
 	pause = {
-		premium = false,
+		premium = true,
 		store = true,
 		battlepass = true,
 		boxes = true,
