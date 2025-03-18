@@ -135,7 +135,7 @@ function Creative.Home()
                     ["Bank"] = Identity["Bank"],
                     ["Phone"] = vRP.Phone(Passport),
                     ["Gemstone"] = vRP.UserGemstone(Identity["License"]),
-                    ["Playing"] = vRP.Playing(Passaport),
+                    ["Playing"] = vRP.Playing(Passport),
                     ["Medic"] = MedicDays(Identity["Medic"]),
                 },
                 ["Premium"] = PremiumDays(source),
