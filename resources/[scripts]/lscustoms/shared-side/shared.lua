@@ -3,9 +3,9 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 Locations = {
 	{
-		["Logo"] = "lscustoms.png",
-		--["Permission"] = "Mecanico",
-		["Coords"] = vec4(-339.15,-136.66,39.01,87.88)
+		Logo = "lscustoms.png",
+		--Permission = "Mecanico",
+		Coords = vec4(-339.15,-136.66,39.01,87.88)
 	}
 }
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -150,79 +150,75 @@ Resprays = {
 -----------------------------------------------------------------------------------------------------------------------------------------
 function Calculate(Table,Vehicle)
 	local Payment = 0
+
 	for Index,v in pairs(Table) do
 		local Price = 0
-		local Selected = v["Selected"]
-		local Installed = v["Installed"]
+		local BasePrice = Values[Index] or 100
+		local Selected,Installed = v.Selected,v.Installed
 
 		if Index == "VehicleExtras" then
 			for _,w in pairs(v) do
-				if w["Installed"] ~= w["Selected"] then
-					Price = Price + (Values[Index] or 100)
+				if w.Installed ~= w.Selected then
+					Price = Price + BasePrice
 				end
 			end
 		elseif Index == "Respray" then
 			for Name,w in pairs(v) do
-				if Name == "PrimaryColour" or Name == "SecondaryColour" then
-					if w["Installed"]["Type"] ~= w["Selected"]["Type"] then
-						Price = Price + (Values[Index] or 100)
-					end
+				local InstalledType,SelectedType = w.Installed,w.Selected
 
-					if (w["Installed"]["Color"][1] ~= w["Selected"]["Color"][1] or w["Installed"]["Color"][2] ~= w["Selected"]["Color"][2] or w["Installed"]["Color"][3] ~= w["Selected"]["Color"][3]) then
-						Price = Price + (Values[Index] or 100)
+				if Name == "PrimaryColour" or Name == "SecondaryColour" then
+					if InstalledType.Type ~= SelectedType.Type or (InstalledType.Color[1] ~= SelectedType.Color[1] or InstalledType.Color[2] ~= SelectedType.Color[2] or InstalledType.Color[3] ~= SelectedType.Color[3]) then
+						Price = Price + BasePrice
 					end
-				else
-					if w["Installed"] ~= w["Selected"] and w["Selected"] > -1 then
-						Price = Price + (Values[Index] or 100)
-					end
+				elseif InstalledType ~= SelectedType and SelectedType > -1 then
+					Price = Price + BasePrice
 				end
 			end
 		elseif Index == "Wheels" then
 			for Name,w in pairs(v) do
+				local InstalledValue,SelectedValue = w.Installed,w.Selected
+
 				if Name == "TyreSmoke" then
-					if (w["Installed"][1] ~= w["Selected"][1] or w["Installed"][2] ~= w["Selected"][2] or w["Installed"][3] ~= w["Selected"][3]) then
-						Price = Price + (Values[Index] or 100)
+					if InstalledValue[1] ~= SelectedValue[1] or InstalledValue[2] ~= SelectedValue[2] or InstalledValue[3] ~= SelectedValue[3] then
+						Price = Price + BasePrice
 					end
-				elseif Name == "CustomTyres" then
-					if w["Installed"] ~= w["Selected"] then
-						Price = Price + (Values[Index] or 100)
-					end
-				else
-					if w["Installed"] ~= w["Selected"] and w["Selected"] > -1 then
-						Price = Price + (Values[Index] or 100)
-					end
+				elseif Name == "CustomTyres" and InstalledValue ~= SelectedValue then
+					Price = Price + BasePrice
+				elseif InstalledValue ~= SelectedValue and SelectedValue > -1 then
+					Price = Price + BasePrice
 				end
 			end
 		elseif Index == "Turbo" or Index == "PlateHolder" then
 			if Installed ~= Selected then
-				Price = Price + (Values[Index] or 100)
+				Price = Price + BasePrice
 			end
 		elseif Index == "Neons" or Index == "Xenons" then
-			if Installed["Enable"] ~= Selected["Enable"] then
-				Price = Price + (Values[Index] or 100)
+			if Installed.Enable ~= Selected.Enable then
+				Price = Price + BasePrice
 			end
 
-			if Index == "Neons" and Installed["Color"][1] ~= Selected["Color"][1] and Installed["Color"][2] ~= Selected["Color"][2] and Installed["Color"][3] ~= Selected["Color"][3] then
-				Price = Price + (Values[Index] or 100)
-			elseif Index == "Xenons" and Installed["Color"] ~= Selected["Color"] then
-				Price = Price + (Values[Index] or 100)
+			if Index == "Neons" then
+				if Installed.Color[1] ~= Selected.Color[1] or Installed.Color[2] ~= Selected.Color[2] or Installed.Color[3] ~= Selected.Color[3] then
+					Price = Price + BasePrice
+				end
+			elseif Index == "Xenons" and Installed.Color ~= Selected.Color then
+				Price = Price + BasePrice
 			end
 		else
 			if type(Values[Index]) == "table" and Installed ~= Selected and Selected > -1 then
-				if Index == "SuspensionUpgrade" or Index == "TransmissionUpgrade" or Index == "ShieldingUpgrade" or Index == "EngineUpgrade" or Index == "BrakeUpgrade" then
+				if Index:match("Upgrade") then
 					local VehiclePrice = VehiclePrice(Vehicle)
-
-					Values[Index] = { parseInt(VehiclePrice * 0.1), parseInt(VehiclePrice * 0.2), parseInt(VehiclePrice * 0.3), parseInt(VehiclePrice * 0.4), parseInt(VehiclePrice * 0.5), parseInt(VehiclePrice * 0.6) }
+					Values[Index] = {
+						parseInt(VehiclePrice * 0.1),parseInt(VehiclePrice * 0.2),
+						parseInt(VehiclePrice * 0.3),parseInt(VehiclePrice * 0.4),
+						parseInt(VehiclePrice * 0.5),parseInt(VehiclePrice * 0.6)
+					}
 				end
 
 				local Total = #Values[Index]
-				if Selected >= Total then
-					Price = Values[Index][Total] or 100
-				else
-					Price = Values[Index][Selected + 1] or 100
-				end
+				Price = Values[Index][math.min(Selected + 1,Total)] or BasePrice
 			elseif Installed ~= Selected and Selected > -1 then
-				Price = (Values[Index] or 100)
+				Price = BasePrice
 			end
 		end
 

@@ -4,7 +4,7 @@
 Config = {
 	["Lenhador"] = {
 		["Route"] = true, -- false (se a localização de entrega é aleatória)
-		["Circle"] = 0.15, -- Tamanho da região do target
+		["Circle"] = 1.0, -- Tamanho da região do target
 		["Wanted"] = 600, -- false (se deseja desativar) | number (quantidade em segundos)
 		["Battlepass"] = 2, -- false (se deseja desativar) | number (quantidade em pontos)
 		["DebugPoly"] = false, -- true (caso queira ver o tamanho do Circle)

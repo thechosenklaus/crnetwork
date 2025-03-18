@@ -402,7 +402,7 @@ Boxes = {
 		["Name"] = "Caixa de Plástico",
 		["Image"] = "plastic",
 		["Price"] = 500,
-		["Discount"] = 1.0,
+		["Discount"] = 0.75,
 		["Rewards"] = {
 			{
 				["Id"] = 1,
@@ -474,31 +474,49 @@ Works = {
 -- PREMIUM
 -----------------------------------------------------------------------------------------------------------------------------------------
 Premium = {
-	[1] = {
-		["Hierarchy"] = 1,
-		["Name"] = "Ouro",
-		["Image"] = "gold",
-		["Price"] = 20000,
-		["Discount"] = 1.0,
-		["Rewards"] = {
-			{
-				["Type"] = "Info",
-				["Name"] = "Reduz 20% de quebrar a Lockpick"
-			},{
-				["Type"] = "Info",
-				["Name"] = "Recebe 100 Kilos de peso na mochila"
-			},{
-				["Type"] = "Info",
-				["Name"] = "20% de bonificação nos empregos"
-			},{
-				["Type"] = "Info",
-				["Name"] = "Salário de $10.000 a cada 30 minutos"
-			},{
-				["Type"] = "Info",
-				["Name"] = "75% de desconto em todos os impostos"
-			}
-		}
-	},
+    [1] = {
+        ["Hierarchy"] = 1,
+        ["Name"] = "Ouro",
+        ["Image"] = "gold",
+        ["Price"] = 20000,
+        ["Discount"] = 1.0,
+        ["Rewards"] = {
+            {
+                ["Type"] = "Info",
+                ["Name"] = "Reduz 20% de quebrar a Lockpick"
+            },{
+                ["Type"] = "Info",
+                ["Name"] = "Recebe 100 Kilos de peso na mochila"
+            },{
+                ["Type"] = "Info",
+                ["Name"] = "20% de bonificação nos empregos"
+            },{
+                ["Type"] = "Info",
+                ["Name"] = "Salário de $10.000 a cada 30 minutos"
+            },{
+                ["Type"] = "Info",
+                ["Name"] = "75% de desconto em todos os impostos"
+            }
+        },
+        ["Selectables"] = {
+            {
+                ["Id"] = 1,
+                ["Name"] = "Categoria 2",
+                ["Options"] = {
+										{
+												["Name"] = "BMW M5 2022",
+												["Index"] = "22m5",
+												["Amount"] = 30
+										},
+										{
+												["Name"] = "McLaren Senna",
+												["Index"] = "senna",
+												["Amount"] = 30
+										}
+                }
+            }
+        }
+    },
 	[2] = {
 		["Hierarchy"] = 2,
 		["Name"] = "Prata",
@@ -567,8 +585,7 @@ Premium = {
 	-- 		},{
 	-- 			["Type"] = "Vehicle",
 	-- 			["Name"] = "SkylineR34",
-	-- 			["Index"] = "skyliner34",
-	-- 			["Amount"] = 30
+	-- 			["Index"] = "skyliner34"
 	-- 		}
 	-- 	},
 	-- 	["Selectables"] = {
@@ -578,7 +595,8 @@ Premium = {
 	-- 			["Options"] = {
 	-- 				{
 	-- 					["Name"] = "SkylineR34",
-	-- 					["Index"] = "skyliner34"
+	-- 					["Index"] = "skyliner34",
+	-- 					["Amount"] = 30
 	-- 				}
 	-- 			}
 	-- 		}
