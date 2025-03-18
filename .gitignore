@@ -2,5 +2,6 @@ artifacts/
 cache/
 db/
 .replxx_history
+server.cfg
 /resources/\[addons\]
 /resources/\[smartphone\]
