@@ -142,11 +142,7 @@ function Creative.Home()
                 table.insert(Experiences, { v, Experience })
             end
 
-            local Groups = vRP.UserGroups(Passport)
-            local Group = {}
-            for Permission,_ in pairs(Groups) do
-                Group = Permission
-		    end
+            local Playing = vRP.GetSrvData("Playing:"..Passport)
             
             return {
                 ["Information"] = {
@@ -157,7 +153,7 @@ function Creative.Home()
                     ["Bank"] = Identity["Bank"],
                     ["Phone"] = vRP.Phone(Passport),
                     ["Gemstone"] = vRP.UserGemstone(Identity["License"]),
-                    ["Playing"] = CompleteTimers(vRP.Playing(Passport,Group)),
+                    ["Playing"] = CompleteTimers(Playing.Online),
                     ["Medic"] = MedicDays(Identity["Medic"]),
                 },
                 ["Premium"] = PremiumDays(source),
@@ -389,7 +385,7 @@ function Creative.MarketplaceInventory(Mode)
 
         if Mode == "Create" then
             for Id, Slot in pairs(Inventory) do
-                if Slot["item"] then
+                if Slot["item"] and not vRP.CheckDamaged(Slot["item"]) then
                     local Item = {
                         Id = Id,
                         Key = ItemIndex(Slot["item"]),
@@ -455,13 +451,13 @@ function Creative.MarketplaceAnnounce(Data)
             local Price = Data["Price"]
             local Amount = Data["Amount"]
 
-            table.insert(Datatable, {
+            Datatable[#Datatable + 1] = {
                 passport = Passport,
                 key = ItemIndex(Item),
                 item = Item,
                 price = Price,
                 quantity = Amount,
-            })
+            }
 
             vRP.SetSrvData("Marketplace", Datatable, true)
 
@@ -489,24 +485,28 @@ function Creative.MarketplaceBuy(Id)
                 TriggerClientEvent("pause:Notify", source, "Você não pode comprar seu próprio item.", "Verifique o item antes de comprar.")
                 return false
             end
+            if vRP.CheckWeight(Passport,Datatable[Id]["item"]) and not vRP.MaxItens(Passport,Datatable[Id]["item"]) then
+                if vRP.PaymentFull(Passport, Datatable[Id]["price"]) then
+                    vRP.GiveBank(Datatable[Id]["passport"], Datatable[Id]["price"])
+                    vRP.GiveItem(Passport, Datatable[Id]["item"], Datatable[Id]["quantity"])
+                    
+                    TriggerClientEvent("pause:Notify", source, "Compra realizada com sucesso.", "Verifique seu Inventario", "verde")
+                    
+                    local seller = vRP.Source(Datatable[Id]["passport"])
+                    if seller then
+                        TriggerClientEvent("Notify", seller, "Sucesso", "Seu item foi vendido por $" .. Datatable[Id]["price"] .. ".", "verde", 5000)
+                    end
 
-            if vRP.PaymentFull(Passport, Datatable[Id]["price"]) then
-                vRP.GiveBank(Datatable[Id]["passport"], Datatable[Id]["price"])
-                vRP.GiveItem(Passport, Datatable[Id]["item"], Datatable[Id]["quantity"])
-                
-                TriggerClientEvent("pause:Notify", source, "Compra realizada com sucesso.", "Verifique seu Inventario", "verde")
-                
-                local seller = vRP.Source(Datatable[Id]["passport"])
-                if seller then
-                    TriggerClientEvent("Notify", seller, "Sucesso", "Seu item foi vendido por $" .. Datatable[Id]["price"] .. ".", "verde", 5000)
+                    Datatable[Id] = nil
+                    vRP.SetSrvData("Marketplace", Datatable, true)
+
+                    return true
+                else
+                    TriggerClientEvent("pause:Notify", source, "Dinheiro insuficiente.", "Verifique seu banco ou inventario.")
+                    return false
                 end
-
-                Datatable[Id] = nil
-                vRP.SetSrvData("Marketplace", Datatable, true)
-
-                return true
             else
-                TriggerClientEvent("pause:Notify", source, "Dinheiro insuficiente.", "Verifique seu banco ou inventario.")
+                TriggerClientEvent("pause:Notify", source, "Espaço insuficiente.", "Verifique seu espaço no inventario.")
                 return false
             end
         end
@@ -625,42 +625,6 @@ function Creative.RolepassRescue(Mode, Number)
     return false
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
--- ADDPOINTS
------------------------------------------------------------------------------------------------------------------------------------------
-function AddPoints(Passport, Amount)
-    local Rolepass = GetRolepass(Passport)
-    if type(Rolepass) == "table" then
-        if not Rolepass["Points"] then
-            Rolepass["Points"] = 0
-        end
-
-        Rolepass["Points"] = Rolepass["Points"] + math.min(Amount, (15000 - Rolepass["Points"]))
-        vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Rolepass", Information = json.encode(Rolepass) })
-    end
-end
------------------------------------------------------------------------------------------------------------------------------------------
--- ADDEXPERIENCE
------------------------------------------------------------------------------------------------------------------------------------------
-function AddExperience(Passport, Work, Number)
-	if Passport and Work and Number then
-		vRP.PutExperience(Passport,Work,Number)
-	end
-end
------------------------------------------------------------------------------------------------------------------------------------------
--- GETEXPERIENCE
------------------------------------------------------------------------------------------------------------------------------------------
-function GetExperience(Passport, Work)
-	if Passport and Work then
-		return vRP.GetExperience(Passport,Work) or 0
-	end
-end
------------------------------------------------------------------------------------------------------------------------------------------
--- EXPORTS
------------------------------------------------------------------------------------------------------------------------------------------
-exports("AddPoints", AddPoints)
-exports('AddExperience', AddExperience)
-exports('GetExperience', GetExperience)
------------------------------------------------------------------------------------------------------------------------------------------
 -- DISCONNECT
 -----------------------------------------------------------------------------------------------------------------------------------------
 function Creative.Disconnect()
@@ -671,11 +635,3 @@ function Creative.Disconnect()
 		vRP.Kick(source, "Volte mais tarde!")
 	end
 end
------------------------------------------------------------------------------------------------------------------------------------------
--- DISCONNECT
------------------------------------------------------------------------------------------------------------------------------------------
--- AddEventHandler("Disconnect",function(Passport)
--- 	if activeRolepass[Passport] then
--- 		vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Rolepass", Information = json.encode(activeRolepass[Passport]) })
--- 	end
--- end)
