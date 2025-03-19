@@ -124,8 +124,6 @@ function Creative.Home()
                 table.insert(Experiences, { v, Experience })
             end
 
-            local Playing = vRP.GetSrvData("Playing:" .. Passport)
-
             local Medic = Identity["Medic"]
             local Days = 0
 
@@ -144,7 +142,7 @@ function Creative.Home()
                     ["Bank"] = Identity["Bank"],
                     ["Phone"] = vRP.Phone(Passport),
                     ["Gemstone"] = vRP.UserGemstone(Identity["License"]),
-                    ["Playing"] = CompleteTimers(Playing.Online),
+                    ["Playing"] = CompleteTimers(os.time() - Identity["Login"]),
                     ["Medic"] = Days,
                 },
                 ["Premium"] = PremiumDays(source),
