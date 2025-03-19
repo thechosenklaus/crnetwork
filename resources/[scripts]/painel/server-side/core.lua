@@ -27,7 +27,7 @@ RegisterCommand("painel",function(source,Message)
 		if Message[1] then
 			Permission = Message[1]
 
-			if vRP.PainelBlock(Permission) or vRP.GroupType(Permission) == "Work" or not vRP.HasPermission(Passport,Permission) then
+			if vRP.PainelBlock(Permission) or vRP.GroupType(Permission) == Work or not vRP.HasPermission(Passport,Permission) then
 				return false
 			end
 		end
