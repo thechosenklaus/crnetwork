@@ -12,9 +12,23 @@ Creative = {}
 Tunnel.bindInterface("pause", Creative)
 vKEYBOARD = Tunnel.getInterface("keyboard")
 -----------------------------------------------------------------------------------------------------------------------------------------
--- VARIABLES
+-- BATTLE
 -----------------------------------------------------------------------------------------------------------------------------------------
-local activeRolepass = {}
+RegisterCommand("battle", function(source)
+    local Passport = vRP.Passport(source)
+    if Passport and vRP.HasGroup(Passport, "Admin") then
+        local Keyboard = vKEYBOARD.Secondary(source, "Passaporte", "Quantidade XP")
+        if Keyboard then
+            local targetPassport = Keyboard[1]
+            local amount = tonumber(Keyboard[2])
+            if targetPassport and amount then
+                vRP.RolepassPoints(targetPassport, amount, true)
+                TriggerClientEvent("Notify", source, "Sucesso", "XP atualizado.", "verde", 5000)
+                exports["discord"]:Embed("XP Setado", "**[ADMIN]:** " .. Passport .. "\n**[PASSAPORTE]:** " .. targetPassport .. "\n**[XP]:** " .. amount .. "\n**[DATA & HORA]:** " .. os.date("%d/%m/%Y") .. " às " .. os.date("%H:%M"))
+            end
+        end
+    end
+end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- COUNTSHOPPING
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -86,19 +100,21 @@ function PremiumDays(source)
     local Passport = vRP.Passport(source)
     local Identity = vRP.Identity(Passport)
     local Account = vRP.Account(Identity["License"])
+    local Level = Account["Level"]
 
     local PremiumDay = 0
-    if Account["Premium"] and Account["Premium"] >= os.time() then
+    if Account["Premium"] and Account["Premium"] >= os.time() and Account["Level"] > 0 then
         local Time = Account["Premium"] - os.time()
         PremiumDay = math.floor(Time / 86400)
     end
     
-    local Hierarchy = 1
+    local Hierarchy = Account["Level"]
     local PremiumInfo = Premium[1]
 
     local Display = Premium[math.random(#Premium)]
     if Hierarchy > 0 then
         Display = Premium[Hierarchy]
+        Hierarchy = Account["Level"]
     end
 
     return {
@@ -172,7 +188,10 @@ function Creative.PremiumBuy(Index, SelectedOptionId)
 
         if vRP.PaymentGems(Passport, Item["Price"]) then
             local SetPremium = Item["Hierarchy"]
-            vRP.SetPremium(source, Passport, SetPremium, 30)
+            local Identity = vRP.Identity(Passport)
+            vRP.SetPermission(Passport,Item["Name"],SetPremium)
+            vRP.Query("accounts/SetPremium",{ Days = 30, Level = SetPremium, License = Identity["License"] })
+            -- vRP.SetPremium(source, Passport, SetPremium, 30)
 
             if Item["Selectables"] then
                 for _, Selectable in ipairs(Item["Selectables"]) do
@@ -536,7 +555,7 @@ function Creative.Rolepass()
     local Passport = vRP.Passport(source)
 
     if Passport then
-        local RolepassData = GetRolepass(Passport)
+        local RolepassData = vRP.Rolepass(Passport)
 
         local Premium = {}
         for Index,Value in pairs(RoleItens["Premium"]) do
@@ -549,7 +568,7 @@ function Creative.Rolepass()
         end
 
         return {
-            Active = RolepassData["RolepassBuy"],
+            Active = RolepassData["Active"],
             CurrentFree = parseInt(RolepassData["Free"]),
             CurrentPremium = parseInt(RolepassData["Premium"]),
             Finish = Rolepass - os.time(),
@@ -569,17 +588,10 @@ end
 function Creative.RolepassBuy()
     local source = source
     local Passport = vRP.Passport(source)
-    local Rolepass = GetRolepass(Passport)
 
-    if Passport then
-        if activeRolepass[Passport] == nil then
-            activeRolepass[Passport] = false
-        end
-        
+    if Passport then   
         if vRP.PaymentGems(Passport, RolepassPrice) then
-            activeRolepass[Passport] = Rolepass
-            Rolepass["RolepassBuy"] = true
-            vRP.Query("playerdata/SetData", { Passport = Passport, Name = "Rolepass", Information = json.encode(Rolepass) })
+            vRP.RolepassBuy(Passport)
             TriggerClientEvent("pause:Notify", source, "Compra concluída.", "Verifique o Passe de Batalha.", "verde")
             return true
         else
@@ -598,20 +610,13 @@ function Creative.RolepassRescue(Mode, Number)
     local Passport = vRP.Passport(source)
 
     if Passport then  
-        if activeRolepass[Passport] == nil then
-            activeRolepass[Passport] = {}
-        end
-
         if RoleItens[Mode] then
             if RoleItens[Mode][Number] then
                 local Item = RoleItens[Mode][Number]["Item"]
-                local itemAmount = RoleItens[Mode][Number]["Amount"]
-                activeRolepass[Passport][Mode] = parseInt(Number)
-                activeRolepass[Passport]["Points"] = not activeRolepass[Passport]["Points"] and 0 or activeRolepass[Passport]["Points"] - RolepassPoints
-                vRP.Query("playerdata/SetData", { Passport = Passport, Name = "Rolepass", Information = json.encode(activeRolepass[Passport]) })
-
-                vRP.GenerateItem(Passport, Item, itemAmount, false)
-                TriggerClientEvent("pause:Notify", source, "Item Recebido.", "Você recebeu <b>" .. itemAmount .. "x " .. ItemName(Item) .. "</b>.", "verde")
+                local ItemAmount = RoleItens[Mode][Number]["Amount"]
+                vRP.RolepassPayment(Passport,ItemAmount,Mode)
+                vRP.GenerateItem(Passport, Item, ItemAmount, false)
+                TriggerClientEvent("pause:Notify", source, "Item Recebido.", "Você recebeu <b>" .. ItemAmount .. "x " .. ItemName(Item) .. "</b>.", "verde")
                 return true
             end
         end
@@ -669,8 +674,8 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- DISCONNECT
 -----------------------------------------------------------------------------------------------------------------------------------------
-AddEventHandler("Disconnect",function(Passport)
-	if activeRolepass[Passport] then
-		vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Rolepass", Information = json.encode(activeRolepass[Passport]) })
-	end
-end)
+-- AddEventHandler("Disconnect",function(Passport)
+-- 	if activeRolepass[Passport] then
+-- 		vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Rolepass", Information = json.encode(activeRolepass[Passport]) })
+-- 	end
+-- end)
