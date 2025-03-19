@@ -511,6 +511,48 @@ RegisterCommand("unban",function(source,Message)
 	end
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
+-- INSERTCRON
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterCommand("insertcron",function(source)
+	local Passport = vRP.Passport(source)
+	if Passport and vRP.HasGroup(Passport,"Admin") then
+		local Keyboard = vKEYBOARD.Vehicle(source,"Passaporte","Permissão",{ "Horas","Dias" },"Quantidade")
+		if Keyboard then
+			local Timer = 0
+			local Mode = Keyboard[3]
+			local Permission = Keyboard[2]
+			local OtherPassport = Keyboard[1]
+			local Amount = parseInt(Keyboard[4])
+
+			if not vRP.HasPermission(OtherPassport,Permission) then
+				vRP.SetPermission(OtherPassport,Permission)
+
+				if Mode == "Horas" then
+					Timer = Amount * 60
+				elseif Mode == "Dias" then
+					Timer = Amount * 1440
+				end
+
+				exports["crons"]:Insert(OtherPassport,"RemovePermission",Timer,{ Permission = Permission })
+				TriggerClientEvent("Notify",source,"Sucesso","Adição efetuada.","verde",5000)
+			end
+		end
+	end
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- REMOVECRON
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterCommand("removecron",function(source)
+	local Passport = vRP.Passport(source)
+	if Passport and vRP.HasGroup(Passport,"Admin") then
+		local Keyboard = vKEYBOARD.Secondary(source,"Passaporte","Permissão")
+		if Keyboard then
+			exports["crons"]:Remove(Keyboard[1],"RemovePermission",Keyboard[2])
+			TriggerClientEvent("Notify",source,"Sucesso","Remoção efetuada.","verde",5000)
+		end
+	end
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
 -- TPCDS
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterCommand("tpcds",function(source)

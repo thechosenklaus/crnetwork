@@ -76,23 +76,6 @@ local function CountCarousel()
 	end
 	return Carousel
 end
-
------------------------------------------------------------------------------------------------------------------------------------------
--- MEDICDAYS
------------------------------------------------------------------------------------------------------------------------------------------
-function MedicDays(Medic)
-    local Time = Medic
-
-    if Time then
-        local Hour = os.time()
-        local Seconds = Time - Hour
-        local Days = math.ceil(Seconds / 86400)
-
-        return Days
-    end
-
-    return 0 
-end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PREMIUMDAYS
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -137,12 +120,20 @@ function Creative.Home()
             local Experiences = {}
             
             for Index, v in pairs(Works) do
-                local Experience = vRP.GetExperience(Passport,Index)
-
+                local Experience = vRP.GetExperience(Passport, Index)
                 table.insert(Experiences, { v, Experience })
             end
 
-            local Playing = vRP.GetSrvData("Playing:"..Passport)
+            local Playing = vRP.GetSrvData("Playing:" .. Passport)
+
+            local Medic = Identity["Medic"]
+            local Days = 0
+
+            if Medic then
+                local Hour = os.time()
+                local Seconds = Medic - Hour
+                Days = (Seconds > 0) and math.ceil(Seconds / 86400) or 0
+            end
             
             return {
                 ["Information"] = {
@@ -154,7 +145,7 @@ function Creative.Home()
                     ["Phone"] = vRP.Phone(Passport),
                     ["Gemstone"] = vRP.UserGemstone(Identity["License"]),
                     ["Playing"] = CompleteTimers(Playing.Online),
-                    ["Medic"] = MedicDays(Identity["Medic"]),
+                    ["Medic"] = Days,
                 },
                 ["Premium"] = PremiumDays(source),
                 ["Shopping"] = CountShopping(Passport),
@@ -187,7 +178,6 @@ function Creative.PremiumBuy(Index, SelectedOptionId)
             local Identity = vRP.Identity(Passport)
             vRP.SetPermission(Passport,Item["Name"],SetPremium)
             vRP.Query("accounts/SetPremium",{ Days = 30, Level = SetPremium, License = Identity["License"] })
-            -- vRP.SetPremium(source, Passport, SetPremium, 30)
 
             if Item["Selectables"] then
                 for _, Selectable in ipairs(Item["Selectables"]) do
@@ -536,16 +526,6 @@ function Creative.MarketplaceCancel(Id)
     end
 
     return false
-end
------------------------------------------------------------------------------------------------------------------------------------------
--- GETROLEPASS
------------------------------------------------------------------------------------------------------------------------------------------
-function GetRolepass(Passport)
-    if not activeRolepass[Passport] then
-        activeRolepass[Passport] = vRP.UserData(Passport,"Rolepass")
-    end
-
-    return activeRolepass[Passport]
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ROLEPASS
