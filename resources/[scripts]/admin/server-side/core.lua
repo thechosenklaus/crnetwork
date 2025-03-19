@@ -14,6 +14,104 @@ vCLIENT = Tunnel.getInterface("admin")
 vKEYBOARD = Tunnel.getInterface("keyboard")
 vSKINWEAPON = Tunnel.getInterface("skinweapon")
 -----------------------------------------------------------------------------------------------------------------------------------------
+-- PASSPORT
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterCommand("passport",function(source,Message)
+	local Passport = vRP.Passport(source)
+	if Passport and vRP.HasGroup(Passport,"Admin") then
+		local Keyboard = vKEYBOARD.Secondary(source,"Atual","Novo")
+		if Keyboard then
+			local NewPassport = parseInt(Keyboard[2])
+			local OtherPassport = parseInt(Keyboard[1])
+
+			if vRP.Source(OtherPassport) then
+				return TriggerClientEvent("Notify",source,"Atenção","O passaporte "..OtherPassport.." precisa estar desconectado.","amarelo",5000)
+			end
+
+			if not vRP.Identity(OtherPassport) then
+				return TriggerClientEvent("Notify",source,"Atenção","O passaporte "..OtherPassport.." não existe.","amarelo",5000)
+			end
+
+			if vRP.Identity(NewPassport) then
+				return TriggerClientEvent("Notify",source,"Atenção","O passaporte "..NewPassport.." já existe.","amarelo",5000)
+			end
+
+			local Vehicles = exports["oxmysql"]:query_async("SELECT * FROM vehicles WHERE Passport = ?",{ OtherPassport })
+			if Vehicles and #Vehicles > 0 then
+				for _,v in pairs(Vehicles) do
+					local LsCustoms = vRP.GetSrvData("LsCustoms:"..OtherPassport..":"..v.Vehicle)
+					local Trunkchest = vRP.GetSrvData("Trunkchest:"..OtherPassport..":"..v.Vehicle)
+
+					vRP.SetSrvData("Trunkchest:"..NewPassport..":"..v.Vehicle,Trunkchest,true)
+					vRP.SetSrvData("LsCustoms:"..NewPassport..":"..v.Vehicle,LsCustoms,true)
+					vRP.RemSrvData("Trunkchest:"..OtherPassport..":"..v.Vehicle)
+					vRP.RemSrvData("LsCustoms:"..OtherPassport..":"..v.Vehicle)
+				end
+
+				exports["oxmysql"]:query_async("UPDATE vehicles SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Character = exports["oxmysql"]:query_async("SELECT * FROM characters WHERE id = ?",{ OtherPassport })
+			if Character and #Character > 0 then
+				exports["oxmysql"]:query_async("UPDATE characters SET id = ? WHERE id = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Transactions = exports["oxmysql"]:query_async("SELECT * FROM transactions WHERE Passport = ?",{ OtherPassport })
+			if Transactions and #Transactions > 0 then
+				exports["oxmysql"]:query_async("UPDATE transactions SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Taxs = exports["oxmysql"]:query_async("SELECT * FROM taxs WHERE Passport = ?",{ OtherPassport })
+			if Taxs and #Taxs > 0 then
+				exports["oxmysql"]:query_async("UPDATE taxs SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Races = exports["oxmysql"]:query_async("SELECT * FROM races WHERE Passport = ?",{ OtherPassport })
+			if Races and #Races > 0 then
+				exports["oxmysql"]:query_async("UPDATE races SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Propertys = exports["oxmysql"]:query_async("SELECT * FROM propertys WHERE Passport = ?",{ OtherPassport })
+			if Propertys and #Propertys > 0 then
+				exports["oxmysql"]:query_async("UPDATE propertys SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Playerdata = exports["oxmysql"]:query_async("SELECT * FROM playerdata WHERE Passport = ?",{ OtherPassport })
+			if Playerdata and #Playerdata > 0 then
+				exports["oxmysql"]:query_async("UPDATE playerdata SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Invoices = exports["oxmysql"]:query_async("SELECT * FROM invoices WHERE Passport = ?",{ OtherPassport })
+			if Invoices and #Invoices > 0 then
+				exports["oxmysql"]:query_async("UPDATE invoices SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Invoices_Received = exports["oxmysql"]:query_async("SELECT * FROM invoices WHERE Received = ?",{ OtherPassport })
+			if Invoices_Received and #Invoices_Received > 0 then
+				exports["oxmysql"]:query_async("UPDATE invoices SET Received = ? WHERE Received = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Investments = exports["oxmysql"]:query_async("SELECT * FROM investments WHERE Passport = ?",{ OtherPassport })
+			if Investments and #Investments > 0 then
+				exports["oxmysql"]:query_async("UPDATE investments SET Passport = ? WHERE Passport = ?",{ NewPassport,OtherPassport })
+			end
+
+			local Phone = exports["oxmysql"]:query_async("SELECT * FROM phone_phones WHERE owner_id = ?",{ OtherPassport })
+			if Phone and #Phone > 0 then
+				exports["oxmysql"]:query_async("UPDATE phone_phones SET owner_id = ?, id = ? WHERE owner_id = ?",{ NewPassport,NewPassport,OtherPassport })
+			end
+
+			local Permissions = vRP.UserGroups(OtherPassport)
+			for Permission,Level in pairs(Permissions) do
+				vRP.RemovePermission(OtherPassport,Permission)
+				vRP.SetPermission(NewPassport,Permission,Level)
+			end
+
+			TriggerClientEvent("Notify",source,"Sucesso","Atualização de passaporte concluída.","verde",5000)
+		end
+	end
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
 -- PLAYERS
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterCommand("players",function(source,Message)
