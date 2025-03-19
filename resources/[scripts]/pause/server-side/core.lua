@@ -125,6 +125,12 @@ function Creative.Home()
 
                 table.insert(Experiences, { v, Experience })
             end
+
+            local Groups = vRP.UserGroups(Passport)
+            local Group = {}
+            for Permission,_ in pairs(Groups) do
+                Group = Permission
+		    end
             
             return {
                 ["Information"] = {
@@ -135,7 +141,7 @@ function Creative.Home()
                     ["Bank"] = Identity["Bank"],
                     ["Phone"] = vRP.Phone(Passport),
                     ["Gemstone"] = vRP.UserGemstone(Identity["License"]),
-                    ["Playing"] = vRP.Playing(Passport),
+                    ["Playing"] = CompleteTimers(vRP.Playing(Passport,Group)),
                     ["Medic"] = MedicDays(Identity["Medic"]),
                 },
                 ["Premium"] = PremiumDays(source),
