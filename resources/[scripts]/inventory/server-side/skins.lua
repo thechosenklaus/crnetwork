@@ -1,4 +1,12 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
+-- VRP
+-----------------------------------------------------------------------------------------------------------------------------------------
+local Tunnel = module("vrp","lib/Tunnel")
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- CONNECTION
+-----------------------------------------------------------------------------------------------------------------------------------------
+vSKINWEAPON = Tunnel.getInterface("skinweapon")
+-----------------------------------------------------------------------------------------------------------------------------------------
 -- USERSKINS
 -----------------------------------------------------------------------------------------------------------------------------------------
 function Creative.UserSkins()
@@ -97,11 +105,12 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- TRANSFERSKIN
 -----------------------------------------------------------------------------------------------------------------------------------------
-function Creative.TransferSkin(Target, Number, Weapon, Component, SkinName)
+function Creative.TransferSkin(Target, Number, Weapon, Component)
     local source = source
     local Passport = vRP.Passport(source)
     local OtherPassport = parseInt(Target)
     local OtherSource = vRP.Source(OtherPassport)
+    local Name = nil
 
     if Passport then
         if OtherSource and Number and Weapon and Component then
@@ -112,7 +121,13 @@ function Creative.TransferSkin(Target, Number, Weapon, Component, SkinName)
                 TargetSkinsData["List"] = {}
             end
 
-            if vRP.Request(source,"Sistema de transferência de skins de armas","Você realmente deseja transferir a skin de arma <b>"..SkinName.."</b> para o jogador <b>"..vRP.FullName(OtherPassport).."</b>?") then
+            for k, v in pairs(vSKINWEAPON.Weapons(source)) do
+                if v["weapon"] == Weapon and v["component"] == Component then
+                    Name = v["name"]
+                end
+            end
+
+            if vRP.Request(source,"Sistema de transferência de skins de armas","Você realmente deseja transferir a skin de arma <b>"..Name.."</b> para o jogador <b>"..vRP.FullName(OtherPassport).."</b>?") then
                 for k,v in pairs(TargetSkinsData["List"]) do
                     if v == Number then
                         TriggerClientEvent("Notify", source, "Aviso", "O jogador já possui esta Skin.", "vermelho", 5000)        
@@ -131,8 +146,8 @@ function Creative.TransferSkin(Target, Number, Weapon, Component, SkinName)
 
                 vRP.Query("playerdata/SetData",{ Passport = Target, Name = "Skins", Information = json.encode(TargetSkinsData) })
                 vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Skins", Information = json.encode(SkinsData) })
-                TriggerClientEvent("Notify", source, "Sucesso", "Você transferiu a skin de arma <b>"..SkinName.."</b> para o jogador <b>"..vRP.FullName(OtherPassport).."</b>", "verde", 5000)
-                TriggerClientEvent("Notify", OtherSource, "Sucesso", "Você recebeu a skin de arma <b>"..SkinName.."</b> do jogador <b>"..vRP.FullName(Passport).."</b>", "verde", 5000)        
+                TriggerClientEvent("Notify", source, "Sucesso", "Você transferiu a skin de arma <b>"..Name.."</b> para o jogador <b>"..vRP.FullName(OtherPassport).."</b>", "verde", 5000)
+                TriggerClientEvent("Notify", OtherSource, "Sucesso", "Você recebeu a skin de arma <b>"..Name.."</b> do jogador <b>"..vRP.FullName(Passport).."</b>", "verde", 5000)        
 
                 return true
             end
@@ -148,12 +163,13 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ACTIVESKIN
 -----------------------------------------------------------------------------------------------------------------------------------------
-function Creative.ActiveSkin(Weapon, Component, Name)
-    local Source = source
-    local Passport = vRP.Passport(Source)
+function Creative.ActiveSkin(Weapon, Component)
+    local source = source
+    local Passport = vRP.Passport(source)
     
     if Passport then
         local SkinsData = vRP.UserData(Passport, "Skins")
+        local Name = nil
         SkinsData[Weapon] = Component
 
         if not SkinsData then
@@ -170,7 +186,13 @@ function Creative.ActiveSkin(Weapon, Component, Name)
 
         vRP.Query("playerdata/SetData", { Passport = Passport, Name = "Skins", Information = json.encode(SkinsData) })
 
-        TriggerClientEvent("Notify", Source, "Sucesso", "A skin <b>"..Name.."</b> foi ativada", "verde", 5000)
+        for k, v in pairs(vSKINWEAPON.Weapons(source)) do
+            if v["weapon"] == Weapon and v["component"] == Component then
+                Name = v["name"]
+            end
+        end
+
+        TriggerClientEvent("Notify", source, "Sucesso", "A skin <b>"..Name.."</b> foi ativada", "verde", 5000)
 
         return true
     end
@@ -179,11 +201,12 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- INACTIVESKIN
 -----------------------------------------------------------------------------------------------------------------------------------------
-function Creative.InactiveSkin(Weapon, Component, Name)
+function Creative.InactiveSkin(Weapon, Component)
     local source = source
     local Passport = vRP.Passport(source)
     if Passport then
         local SkinsData = vRP.UserData(Passport, "Skins")
+        local Name = nil
 
         if not SkinsData then
             SkinsData = { List = {} }
@@ -198,6 +221,12 @@ function Creative.InactiveSkin(Weapon, Component, Name)
         SkinsData[Weapon] = nil
         Users["Skins"][Passport][Weapon] = nil
         vRP.Query("playerdata/SetData", { Passport = Passport, Name = "Skins", Information = json.encode(SkinsData) })
+
+        for k, v in pairs(vSKINWEAPON.Weapons(source)) do
+            if v["weapon"] == Weapon and v["component"] == Component then
+                Name = v["name"]
+            end
+        end
 
         TriggerClientEvent("Notify", source, "Sucesso", "A skin <b>"..Name.."</b> foi desativada", "verde", 5000)
 

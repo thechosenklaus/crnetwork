@@ -5,7 +5,9 @@ local Tunnel = module("vrp","lib/Tunnel")
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- CONNECTION
 -----------------------------------------------------------------------------------------------------------------------------------------
+Creative = {}
 vSERVER = Tunnel.getInterface("inventory")
+Tunnel.bindInterface("skinweapon",Creative)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- VARIABLES
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -33,7 +35,8 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- SKINWEAPON:OPEN
 -----------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("skinweapon:Open",function()
+RegisterNetEvent("skinweapon:Open")
+AddEventHandler("skinweapon:Open",function()
 	if Objects and DoesEntityExist(Objects) then
 		DeleteEntity(Objects)
 	end
@@ -77,6 +80,8 @@ RegisterNUICallback("Close",function(Data,Callback)
 	if Objects and DoesEntityExist(Objects) then
 		DeleteEntity(Objects)
 	end
+
+	ExecuteCommand("PauseBreak")
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PAGE
@@ -102,9 +107,8 @@ RegisterNUICallback("Transfer",function(Data,Callback)
 	local Number = Data["Skin"]
 	local Weapon = Weapons[Number]["weapon"]
 	local Component = Weapons[Number]["component"]
-	local Name = Weapons[Number]["name"]
 
-	if vSERVER.TransferSkin(Data["Passport"],Number,Weapon,Component,Name) then
+	if vSERVER.TransferSkin(Data["Passport"],Number,Weapon,Component) then
 		SendNUIMessage({ Action = "Gemstone", Payload = Gemstone })
 		UserSkins()
 	end
@@ -126,9 +130,8 @@ RegisterNUICallback("Active",function(Data,Callback)
 	local Number = Data["Skin"]
 	local Weapon = Weapons[Number]["weapon"]
 	local Component = Weapons[Number]["component"]
-	local Name = Weapons[Number]["name"]
 
-	Callback(vSERVER.ActiveSkin(Weapon,Component,Name))
+	Callback(vSERVER.ActiveSkin(Weapon,Component))
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- INACTIVE
@@ -137,9 +140,8 @@ RegisterNUICallback("Inactive",function(Data,Callback)
 	local Number = Data["Skin"]
 	local Weapon = Weapons[Number]["weapon"]
 	local Component = Weapons[Number]["component"]
-	local Name = Weapons[Number]["name"]
 
-	Callback(vSERVER.InactiveSkin(Weapon,Component,Name))
+	Callback(vSERVER.InactiveSkin(Weapon,Component))
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- MOUSE
@@ -164,13 +166,14 @@ function UserSkins()
 	local Selected = false
 	local Consult = vSERVER.UserSkins()
 	if Consult then
-		for _,v in pairs(Consult["List"]) do
+		for Number,v in pairs(Consult["List"]) do
 			local Save = #Skins + 1
+			local Number = parseInt(v)
 
-			Skins[Save] = Weapons[v]
+			Skins[Save] = Weapons[Number]
 
-			local Weapon = Weapons[v]["weapon"]
-			if Consult[Weapon] and Weapons[v]["component"] == Consult[Weapon] then
+			local Weapon = Weapons[Number]["weapon"]
+			if Consult[Weapon] and Weapons[Number]["component"] == Consult[Weapon] then
 				Skins[Save]["active"] = true
 			else
 				Skins[Save]["active"] = false
@@ -228,3 +231,9 @@ AddEventHandler("hud:RemoveGemstone",function(Number)
 		Gemstone = 0
 	end
 end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- WEAPONS
+-----------------------------------------------------------------------------------------------------------------------------------------
+function Creative.Weapons()
+	return Weapons
+end
