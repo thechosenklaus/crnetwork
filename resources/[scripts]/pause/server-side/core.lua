@@ -174,10 +174,11 @@ function Creative.PremiumBuy(Index, SelectedOptionId)
         local Item = Premium[Index]
 
         if vRP.PaymentGems(Passport, Item["Price"]) then
-            local SetPremium = Item["Hierarchy"]
-            local Identity = vRP.Identity(Passport)
-            vRP.SetPermission(Passport,Item["Name"],SetPremium)
-            vRP.Query("accounts/SetPremium",{ Days = 30, Level = SetPremium, License = Identity["License"] })
+            -- local SetPremium = Item["Hierarchy"]
+            -- local Identity = vRP.Identity(Passport)
+            exports["crons"]:Insert(Passport,"RemovePermission",30 * 1440,{ Permission = Item["Name"] })
+            -- vRP.SetPermission(Passport,Item["Name"],SetPremium)
+            -- vRP.Query("accounts/SetPremium",{ Days = 30, Level = SetPremium, License = Identity["License"] })
 
             if Item["Selectables"] then
                 for _, Selectable in ipairs(Item["Selectables"]) do
