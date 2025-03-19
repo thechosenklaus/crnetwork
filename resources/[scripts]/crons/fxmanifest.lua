@@ -4,7 +4,7 @@ lua54 "yes"
 
 server_scripts {
 	"@vrp/lib/Utils.lua",
-	"server-side/*"
+	"core.lua"
 }
 
 file "config.json"
