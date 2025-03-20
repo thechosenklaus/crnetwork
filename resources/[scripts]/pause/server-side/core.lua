@@ -533,6 +533,37 @@ function Creative.MarketplaceCancel(Id)
     return false
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
+-- RANKING
+-----------------------------------------------------------------------------------------------------------------------------------------
+function Creative.Ranking(Column, Direction)
+    local source = source
+    local Passport = vRP.Passport(source)
+    
+    if Passport then
+        local Ranking = {}
+        local Players = vRP.Players()
+
+        for _, Source in pairs(Players) do
+            local OtherPassport = vRP.Passport(Source)
+            local Identity = vRP.Identity(Passport)
+            local Playing = vRP.GetSrvData("Playing:"..Passport)
+
+            Ranking[#Ranking + 1] = {
+                Name = vRP.FullName(OtherPassport),
+                Killed = Identity.Killed,
+                Death = Identity.Death,
+                Ratio = 0,
+                Status = Playing.Online,
+                Hours = os.time() - Identity.Login,
+            }
+        end
+
+        return Ranking
+    end
+
+    return {}
+end
+-----------------------------------------------------------------------------------------------------------------------------------------
 -- ROLEPASS
 -----------------------------------------------------------------------------------------------------------------------------------------
 function Creative.Rolepass()
