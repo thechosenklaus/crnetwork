@@ -563,6 +563,41 @@ function Creative.Ranking(Column, Direction)
 
     return {}
 end
+function Creative.Daily()
+    local source = source
+    local Passport = vRP.Passport(source)
+
+    if Passport then
+        local Identity = vRP.Identity(Passport)
+        return { Identity["Daily"], Identity["DailyReward"], #Daily }
+    end
+
+    return {}
+end
+function Creative.DailyRescue(Day)
+    local source = source
+    local Passport = vRP.Passport(source)
+
+    if Passport then
+        local Identity = vRP.Identity(Passport)
+        local Reward = Identity["DailyReward"]
+
+        if Day == Reward + 1 and os.date("%d-%m-%y") ~= Identity["Daily"] then
+            for Item, Amount in pairs(Daily[Day]) do
+                vRP.GenerateItem(Passport, Item, Amount, false)
+                TriggerClientEvent("pause:Notify", source, "Item Recebido.", "Você recebeu <b>" .. Amount .. "x " .. ItemName(Item) .. "</b>.", "verde")
+            end
+
+            vRP.UpdateDaily(Passport, source, os.date("%d-%m-%y"))
+
+            return Day
+        else
+            TriggerClientEvent("pause:Notify", source, "Atenção", "Você não pode regatar esse item pois ja resgatou um hoje.", "vermelho")
+        end
+    end
+
+    return
+end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- CODE
 -----------------------------------------------------------------------------------------------------------------------------------------

@@ -531,6 +531,7 @@ function vRP.UpdateDaily(Passport,source,Daily)
 
 	if Characters[source] then
 		Characters[source].Daily = Daily
+		Characters[source].DailyReward = Characters[source].DailyReward + 1
 	end
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
