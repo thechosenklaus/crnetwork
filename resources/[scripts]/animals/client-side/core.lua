@@ -35,8 +35,8 @@ AddEventHandler("animals:Spawn", function(Model)
 			local Ped = PlayerPedId()
 			local Heading = GetEntityHeading(Ped)
 			local Coords = GetOffsetFromEntityInWorldCoords(Ped, 0.0, 1.0, 0.0)
-			local Object, Network = vRPS.CreatePed(Model, Coords["x"], Coords["y"], Coords["z"], Heading, 28)
-			if Object then
+			local Network = vRPS.CreateModels(Model, Coords["x"], Coords["y"], Coords["z"], Heading, 28)
+			if Network then
 				local Spawn = 0
 
 				Hash = LoadNetwork(Network)
