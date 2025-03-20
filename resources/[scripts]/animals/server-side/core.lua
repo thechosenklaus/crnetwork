@@ -29,10 +29,13 @@ end)
 -- DELETE
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNetEvent("animals:Delete")
-AddEventHandler("animals:Delete",function(source,Passport)
-	TriggerClientEvent("animals:Delete",source)
-	TriggerEvent("DeletePed", Animals[Passport])
-	Animals[Passport] = nil
+AddEventHandler("animals:Delete",function()
+	local source = source
+	local Passport = vRP.Passport(source)
+	if Passport then
+		TriggerEvent("DeletePed", Animals[Passport])
+		Animals[Passport] = nil
+	end
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- DISCONNECT

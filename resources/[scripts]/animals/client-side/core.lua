@@ -14,31 +14,14 @@ local Follow = false
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ANIMALS:DYNAMIC
 -----------------------------------------------------------------------------------------------------------------------------------------
-AddEventHandler("animals:Dynamic",function()
-	if Hash and DoesEntityExist(Hash) then
-		exports["dynamic"]:AddMenu("Domésticos","Todas as funções dos animais domésticos.","animal")
-		exports["dynamic"]:AddButton("Ficar/Seguir","Colocar o animal para te ficar/seguir.","animals:Functions","Seguir","animal",false)
-		exports["dynamic"]:AddButton("Guardar","Colocar o animal na casinha.","animals:Functions","Deletar","animal",false)
-
-		local Ped = PlayerPedId()
-		if IsPedInAnyVehicle(Ped) and not IsPedOnAnyBike(Ped) then
-			if not IsPedInAnyVehicle(Hash) then
-				exports["dynamic"]:AddButton("Colocar","Colocar o animal dentro do veículo.","animals:Functions","Colocar","animal",false)
-			end
-
-			if IsPedInAnyVehicle(Hash) then
-				exports["dynamic"]:AddButton("Remover","Retirar o animal de dentro do veículo.","animals:Functions","Remover","animal",false)
-			end
-		end
-	end
-end)
------------------------------------------------------------------------------------------------------------------------------------------
--- ANIMALS:DELETE
------------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("animals:Delete")
-AddEventHandler("animals:Delete",function()
-	Hash = nil
-	Follow = false
+RegisterNetEvent("animals:Dynamic")
+AddEventHandler("animals:Dynamic", function()
+    if Hash ~= nil then
+        exports["dynamic"]:AddMenu("Domésticos", "Tudo sobre animais domésticos.", "animals")
+        exports["dynamic"]:AddButton("Seguir", "Seguir o proprietário.", "animals:Functions", "follow", "animals", false)
+        exports["dynamic"]:AddButton("Colocar no Veículo", "Colocar o animal no veículo.", "animals:Functions", "putvehicle", "animals", false)
+        exports["dynamic"]:AddButton("Remover do Veículo", "Remover o animal no veículo.", "animals:Functions", "removevehicle", "animals", false)
+    end
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ANIMALS:SPAWN
@@ -52,8 +35,8 @@ AddEventHandler("animals:Spawn", function(Model)
 			local Ped = PlayerPedId()
 			local Heading = GetEntityHeading(Ped)
 			local Coords = GetOffsetFromEntityInWorldCoords(Ped, 0.0, 1.0, 0.0)
-			local Network = vRPS.CreateModels(Model, Coords["x"], Coords["y"], Coords["z"], Heading, 28)
-			if Network then
+			local Object, Network = vRPS.CreateModels(Model, Coords["x"], Coords["y"], Coords["z"], Heading, 28)
+			if Object then
 				local Spawn = 0
 
 				Hash = LoadNetwork(Network)
@@ -101,8 +84,7 @@ RegisterNetEvent("animals:Functions")
 AddEventHandler("animals:Functions", function(Functions)
 	if Hash ~= nil then
 		local Ped = PlayerPedId()
-		local Vehicle = GetVehiclePedIsUsing(Ped)
-		if Functions == "Seguir" then
+		if Functions == "follow" then
 			if not Follow then
 				TaskFollowToOffsetOfEntity(Hash, Ped, 1.0, 1.0, 0.0, 5.0, -1, 2.5, 1)
 				SetPedKeepTask(Hash, true)
@@ -112,12 +94,19 @@ AddEventHandler("animals:Functions", function(Functions)
 				ClearPedTasks(Hash)
 				Follow = false
 			end
-		elseif Functions == "Colocar" then
-			TaskEnterVehicle(Hash,Vehicle,-1,0,1.0,16,0)
-		elseif Functions == "Remover" then
-			TaskLeaveVehicle(Hash,Vehicle,16)
-			Follow = false
-		elseif Functions == "Deletar" then
+		elseif Functions == "putvehicle" then
+			if IsPedInAnyVehicle(Ped) and not IsPedOnAnyBike(Ped) then
+				local Vehicle = GetVehiclePedIsUsing(Ped)
+				if IsVehicleSeatFree(Vehicle, 0) then
+					TaskEnterVehicle(Hash, Vehicle, -1, 0, 2.0, 16, 0)
+				end
+			end
+		elseif Functions == "removevehicle" then
+			if IsPedInAnyVehicle(Ped) and not IsPedOnAnyBike(Ped) then
+				TaskLeaveVehicle(Hash, GetVehiclePedIsUsing(Ped), 256)
+				TriggerEvent("animals:Functions", "follow")
+			end
+		elseif Functions == "destroy" then
 			TriggerServerEvent("animals:Delete")
 			Follow = false
 			Hash = nil
