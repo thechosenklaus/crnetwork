@@ -531,6 +531,9 @@ function Creative.Ranking(Column, Direction)
 
     return {}
 end
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- DAILY
+-----------------------------------------------------------------------------------------------------------------------------------------
 function Creative.Daily()
     local source = source
     local Passport = vRP.Passport(source)
@@ -542,6 +545,9 @@ function Creative.Daily()
 
     return {}
 end
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- DAILYRESCUE
+-----------------------------------------------------------------------------------------------------------------------------------------
 function Creative.DailyRescue(Day)
     local source = source
     local Passport = vRP.Passport(source)
@@ -550,7 +556,7 @@ function Creative.DailyRescue(Day)
         local Identity = vRP.Identity(Passport)
         local Reward = Identity["DailyReward"]
 
-        if Day == Reward + 1 and os.date("%d-%m-%y") ~= Identity["Daily"] then
+        if Day == Reward and os.date("%d-%m-%y") ~= Identity["Daily"] then
             for Item, Amount in pairs(Daily[Day]) do
                 vRP.GenerateItem(Passport, Item, Amount, false)
                 TriggerClientEvent("pause:Notify", source, "Item Recebido.", "Você recebeu <b>" .. Amount .. "x " .. ItemName(Item) .. "</b>.", "verde")
