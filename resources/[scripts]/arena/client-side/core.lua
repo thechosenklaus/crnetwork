@@ -110,6 +110,7 @@ AddEventHandler("arena:Enter",function(Number)
 		SendNUIMessage({ Action = "Show" })
 		LocalPlayer["state"]:set("Arena",true,true)
 		LocalPlayer["state"]:set("Route",Zones[Number]["Route"],true)
+		TriggerEvent("inventory:CleanWeapons")
 
 		local Respawn = math.random(#Zones[Number]["Respawn"])
 		SetEntityCoords(Ped,Zones[Number]["Respawn"][Respawn])
