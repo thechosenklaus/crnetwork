@@ -480,7 +480,7 @@ Premium = {
 		Permission = "Ouro",
 		Price = 20000,
 		Discount = 1.0,
-		Duration = 43200,
+		Duration = 30,
 		Rewards = {
 			{
 				Type = "Info",
@@ -512,11 +512,11 @@ Premium = {
 					{
 						Name = "Panto",
 						Index = "panto",
-						Duration = 43200
+						Duration = 30
 					},{
 						Name = "Brioso",
 						Index = "brioso",
-						Duration = 43200
+						Duration = 30
 					}
 				}
 			},{
@@ -525,11 +525,11 @@ Premium = {
 					{
 						Name = "Sultan",
 						Index = "sultan",
-						Duration = 43200
+						Duration = 30
 					},{
 						Name = "Sultan RS",
 						Index = "sultanrs",
-						Duration = 43200
+						Duration = 30
 					}
 				}
 			}
@@ -540,7 +540,7 @@ Premium = {
 		Permission = "Prata",
 		Price = 10000,
 		Discount = 1.0,
-		Duration = 43200,
+		Duration = 30,
 		Rewards = {
 			{
 				Type = "Info",
@@ -565,7 +565,7 @@ Premium = {
 		Permission = "Bronze",
 		Price = 5000,
 		Discount = 1.0,
-		Duration = 43200,
+		Duration = 30,
 		Rewards = {
 			{
 				Type = "Info",

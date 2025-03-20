@@ -140,42 +140,17 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PREMIUMBUY
 -----------------------------------------------------------------------------------------------------------------------------------------
-function Creative.PremiumBuy(Index, Selectables)
+function Creative.PremiumBuy(Index)
     local source = source
     local Passport = vRP.Passport(source)
     if Passport then
         local Item = Premium[Index]
-        if not vRP.PaymentGems(Passport, Item.Price) then
-            local Coin = "Diamantes"
-            TriggerClientEvent("Notify",source,"Aviso",Coin.." insuficiente.","amarelo",5000)
-            return
-        end
-
-        exports["crons"]:Insert(Passport, "RemovePermission", Item.Duration / 86400, { Permission = Item.Permission })
-        vRP.SetPermission(Passport, Item.Permission)
-
-        TriggerClientEvent("Notify",source,"Sucesso","Você adquiriu o pacote premium " .. Item.Name .. " com sucesso!","verde",5000)        
-
-        if Selectables then
-            for _, Selectable in ipairs(Selectables) do
-                if type(Selectable) == "table" and Selectable.Options then
-                    for _, Option in ipairs(Selectable.Options) do
-                        if type(Option) == "table" and Option.Index then
-                            local Vehicle = Option.Index
-
-                            vRP.Query("vehicles/rentalVehicles", {
-                                Passport = Passport,
-                                Vehicle = Vehicle,
-                                Plate = vRP.GeneratePlate(),
-                                Weight = VehicleWeight(Vehicle),
-                                Work = 0,
-                                Days = 30
-                            })
-
-                            TriggerClientEvent("Notify",source,"Sucesso","Veículo " .. Vehicle .. " adicionado com sucesso!","verde",5000)
-                        end
-                    end
-                end
+        if Item then
+            local Price = Item.Price
+            if vRP.PaymentGems(Passport,Price) then
+                exports["crons"]:Insert(Passport,"RemovePermission",Item.Duration * 1440,{ Permission = Item.Permission })
+                vRP.SetPermission(Passport,Item.Permission)
+                TriggerClientEvent("Notify",source,"Sucesso","Premium comprado com sucesso.","verde",5000)
             end
         end
     end
