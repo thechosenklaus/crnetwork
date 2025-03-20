@@ -552,7 +552,7 @@ function Creative.Ranking(Column, Direction)
                 Name = vRP.FullName(OtherPassport),
                 Killed = Identity.Killed,
                 Death = Identity.Death,
-                Ratio = 0,
+                Ratio = 0, -- Sem funcionamento pois Ratio = Razão porem retorna número
                 Status = Playing.Online,
                 Hours = os.time() - Identity.Login,
             }
