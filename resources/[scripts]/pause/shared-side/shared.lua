@@ -402,7 +402,7 @@ Boxes = {
 		["Name"] = "Caixa de Plástico",
 		["Image"] = "plastic",
 		["Price"] = 500,
-		["Discount"] = 0.75,
+		["Discount"] = 1.0,
 		["Rewards"] = {
 			{
 				["Id"] = 1,
@@ -474,134 +474,117 @@ Works = {
 -- PREMIUM
 -----------------------------------------------------------------------------------------------------------------------------------------
 Premium = {
-    [1] = {
-        ["Hierarchy"] = 1,
-        ["Name"] = "Ouro",
-        ["Image"] = "gold",
-        ["Price"] = 20000,
-        ["Discount"] = 1.0,
-        ["Rewards"] = {
-            {
-                ["Type"] = "Info",
-                ["Name"] = "Reduz 20% de quebrar a Lockpick"
-            },{
-                ["Type"] = "Info",
-                ["Name"] = "Recebe 100 Kilos de peso na mochila"
-            },{
-                ["Type"] = "Info",
-                ["Name"] = "20% de bonificação nos empregos"
-            },{
-                ["Type"] = "Info",
-                ["Name"] = "Salário de $10.000 a cada 30 minutos"
-            },{
-                ["Type"] = "Info",
-                ["Name"] = "75% de desconto em todos os impostos"
-            }
-        },
-        ["Selectables"] = {
-            {
-                ["Id"] = 1,
-                ["Name"] = "Categoria 2",
-                ["Options"] = {
-										{
-												["Name"] = "BMW M5 2022",
-												["Index"] = "22m5",
-												["Amount"] = 30
-										},
-										{
-												["Name"] = "McLaren Senna",
-												["Index"] = "senna",
-												["Amount"] = 30
-										}
-                }
-            }
-        }
-    },
-	[2] = {
-		["Hierarchy"] = 2,
-		["Name"] = "Prata",
-		["Image"] = "silver",
-		["Price"] = 10000,
-		["Discount"] = 1.0,
-		["Rewards"] = {
+	{
+		Name = "Ouro",
+		Image = "gold",
+		Permission = "Ouro",
+		Price = 20000,
+		Discount = 1.0,
+		Duration = 43200,
+		Rewards = {
 			{
-				["Type"] = "Info",
-				["Name"] = "Reduz 10% de quebrar a Lockpick"
+				Type = "Info",
+				Name = "Reduz 20% de quebrar a Lockpick"
 			},{
-				["Type"] = "Info",
-				["Name"] = "50 Kilos de peso na mochila"
+				Type = "Info",
+				Name = "Recebe 100 Kilos de peso na mochila"
 			},{
-				["Type"] = "Info",
-				["Name"] = "10% de bonificação nos empregos"
+				Type = "Info",
+				Name = "20% de bonificação nos empregos"
 			},{
-				["Type"] = "Info",
-				["Name"] = "Salário de $5.000 a cada 30 minutos"
+				Type = "Info",
+				Name = "Salário de $10.000 a cada 30 minutos"
 			},{
-				["Type"] = "Info",
-				["Name"] = "50% de desconto em todos os impostos"
+				Type = "Info",
+				Name = "75% de desconto em todos os impostos"
+			},{
+				Type = "Vehicle",
+				Name = "Veículo Básico"
+			},{
+				Type = "Vehicle",
+				Name = "Veículo Esportivo"
+			}
+		},
+		Selectables = {
+			{
+				Name = "Veículo Básico",
+				Options = {
+					{
+						Name = "Panto",
+						Index = "panto",
+						Duration = 43200
+					},{
+						Name = "Brioso",
+						Index = "brioso",
+						Duration = 43200
+					}
+				}
+			},{
+				Name = "Veículo Esportivo",
+				Options = {
+					{
+						Name = "Sultan",
+						Index = "sultan",
+						Duration = 43200
+					},{
+						Name = "Sultan RS",
+						Index = "sultanrs",
+						Duration = 43200
+					}
+				}
 			}
 		}
-	},
-	[3] = {
-		["Hierarchy"] = 3,
-		["Name"] = "Bronze",
-		["Image"] = "bronze",
-		["Price"] = 5000,
-		["Discount"] = 1.0,
-		["Rewards"] = {
+	},{
+		Name = "Prata",
+		Image = "silver",
+		Permission = "Prata",
+		Price = 10000,
+		Discount = 1.0,
+		Duration = 43200,
+		Rewards = {
 			{
-				["Type"] = "Info",
-				["Name"] = "Reduz 5% de quebrar a Lockpick"
+				Type = "Info",
+				Name = "Reduz 10% de quebrar a Lockpick"
 			},{
-				["Type"] = "Info",
-				["Name"] = "25 Kilos de peso na mochila"
+				Type = "Info",
+				Name = "50 Kilos de peso na mochila"
 			},{
-				["Type"] = "Info",
-				["Name"] = "5% de bonificação nos empregos"
+				Type = "Info",
+				Name = "10% de bonificação nos empregos"
 			},{
-				["Type"] = "Info",
-				["Name"] = "Salário de $2.500 a cada 30 minutos"
+				Type = "Info",
+				Name = "Salário de $5.000 a cada 30 minutos"
 			},{
-				["Type"] = "Info",
-				["Name"] = "25% de desconto em todos os impostos"
+				Type = "Info",
+				Name = "50% de desconto em todos os impostos"
+			}
+		}
+	},{
+		Name = "Bronze",
+		Image = "bronze",
+		Permission = "Bronze",
+		Price = 5000,
+		Discount = 1.0,
+		Duration = 43200,
+		Rewards = {
+			{
+				Type = "Info",
+				Name = "Reduz 5% de quebrar a Lockpick"
+			},{
+				Type = "Info",
+				Name = "25 Kilos de peso na mochila"
+			},{
+				Type = "Info",
+				Name = "5% de bonificação nos empregos"
+			},{
+				Type = "Info",
+				Name = "Salário de $2.500 a cada 30 minutos"
+			},{
+				Type = "Info",
+				Name = "25% de desconto em todos os impostos"
 			}
 		}
 	}
-	-- [4] = {
-	-- 	["Hierarchy"] = 3,
-	-- 	["Name"] = "Bronze",
-	-- 	["Image"] = "bronze",
-	-- 	["Price"] = 5000,
-	-- 	["Discount"] = 1.0,
-	-- 	["Rewards"] = {
-	-- 		{
-	-- 			["Type"] = "Item",
-	-- 			["Item"] = "bandage",
-	-- 			["Name"] = "Bandagem",
-	-- 			["Amount"] = 1
-	-- 		},{
-	-- 			["Type"] = "Info",
-	-- 			["Name"] = "Veiculo da categoria 2 30 dias"
-	-- 		},{
-	-- 			["Type"] = "Vehicle",
-	-- 			["Name"] = "SkylineR34",
-	-- 			["Index"] = "skyliner34"
-	-- 		}
-	-- 	},
-	-- 	["Selectables"] = {
-	-- 		{
-	-- 			["Id"] = 1,
-	-- 			["Name"] = "Categoria 2",
-	-- 			["Options"] = {
-	-- 				{
-	-- 					["Name"] = "SkylineR34",
-	-- 					["Index"] = "skyliner34",
-	-- 					["Amount"] = 30
-	-- 				}
-	-- 			}
-	-- 		}
-	-- 	}
-	-- }
 }
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- SHOPITENS
@@ -957,5 +940,32 @@ RoleItens = {
 			["Amount"] = 1,
 			["Item"] = "moneywash"
 		}
+	}
+}
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- VARIABLES
+-----------------------------------------------------------------------------------------------------------------------------------------
+Daily = {
+	{
+		["bandage"] = 3,
+		["radio"] = 3
+	},{
+		["bandage"] = 3,
+		["radio"] = 3
+	},{
+		["bandage"] = 3,
+		["radio"] = 3
+	},{
+		["bandage"] = 3,
+		["radio"] = 3
+	},{
+		["bandage"] = 3,
+		["radio"] = 3
+	},{
+		["bandage"] = 3,
+		["radio"] = 3
+	},{
+		["bandage"] = 3,
+		["radio"] = 3
 	}
 }

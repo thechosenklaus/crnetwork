@@ -10,17 +10,19 @@ vSERVER = Tunnel.getInterface("pause")
 -- VARIABLES
 -----------------------------------------------------------------------------------------------------------------------------------------
 local Pause = false
+local Cooldown = GetGameTimer()
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- COMMAND
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterCommand("PauseBreak",function()
-	if not Pause and not IsPauseMenuActive() then
+	if not LocalPlayer.state.Arena and not exports["lb-phone"]:IsOpen() and not Pause and not IsPauseMenuActive() and Cooldown < GetGameTimer() then
 		Pause = true
 		SetNuiFocus(true,true)
 		TransitionToBlurred(1000)
 		SetCursorLocation(0.5,0.5)
-		TriggerEvent("hud:Active",false)
+		Cooldown = GetGameTimer() + 5000
 		SendNUIMessage({ Action = "Open" })
+		TriggerEvent("hud:Active",false)
 	end
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
@@ -42,7 +44,6 @@ RegisterNUICallback("Skinweapon",function(Data,Callback)
 	SetNuiFocus(false,false)
 	TransitionFromBlurred(1000)
 	TriggerEvent("hud:Active",true)
-	
 	TriggerEvent("skinweapon:Open")
 
 	Callback("Ok")
@@ -65,17 +66,6 @@ RegisterNUICallback("Disconnect",function(Data,Callback)
 	vSERVER.Disconnect()
 
 	Callback("Ok")
-end)
------------------------------------------------------------------------------------------------------------------------------------------
--- BLOCKESC
------------------------------------------------------------------------------------------------------------------------------------------
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(0) 
-        if IsControlJustPressed(0, 322) then 
-            SetPauseMenuActive(false) 
-        end
-    end
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- SETTINGS
@@ -105,13 +95,13 @@ end)
 -- PREMIUM
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("Premium",function(Data,Callback)
-	Callback(Premium)
+	Callback(vSERVER.Premium())
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PREMIUMBUY
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("PremiumBuy",function(Data,Callback)
-	Callback(vSERVER.PremiumBuy(Data["Hierarchy"],Data["Selectables"]))
+	Callback(vSERVER.PremiumBuy(Data.Index,Data.Selectables))
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- HOME
@@ -123,14 +113,14 @@ end)
 -- STORELIST
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("StoreList",function(Data,Callback)
-	Callback(vSERVER.StoreList())
+	Callback({ vSERVER.StoreList(),true })
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- STORESBUY
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("StoreBuy",function(Data,Callback)
-	if not LocalPlayer["state"]["Prison"] then
-		Callback(vSERVER.StoreBuy(Data["Index"],Data["Amount"]))
+	if not LocalPlayer.state.Prison then
+		Callback(vSERVER.StoreBuy(Data.Index,Data.Amount))
 	else
 		Callback(false)
 	end
@@ -151,8 +141,8 @@ end)
 -- BATTLEPASSRESCUE
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("BattlepassRescue",function(Data,Callback)
-	if not LocalPlayer["state"]["Prison"] then
-		Callback(vSERVER.RolepassRescue(Data["Mode"],Data["Number"]))
+	if not LocalPlayer.state.Prison then
+		Callback(vSERVER.RolepassRescue(Data.Mode,Data.Number))
 	else
 		Callback(false)
 	end
@@ -179,13 +169,7 @@ end)
 -- MARKETPLACEINVENTORY
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("MarketplaceInventory",function(Data,Callback)
-	Callback(vSERVER.MarketplaceInventory(Data["Mode"]))
-end)
------------------------------------------------------------------------------------------------------------------------------------------
--- MARKETPLACEINVENTORY
------------------------------------------------------------------------------------------------------------------------------------------
-RegisterNUICallback("MarketplaceList",function(Data,Callback)
-	Callback(vSERVER.MarketplaceList(Data["Mode"]))
+	Callback(vSERVER.MarketplaceInventory(Data.Mode))
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- MARKETPLACEANNOUNCE
@@ -197,13 +181,37 @@ end)
 -- MARKETPLACEBUY
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("MarketplaceBuy",function(Data,Callback)
-	Callback(vSERVER.MarketplaceBuy(Data["Id"]))
+	Callback(vSERVER.MarketplaceBuy(Data.Id))
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- MARKETPLACECANCEL
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNUICallback("MarketplaceCancel",function(Data,Callback)
-	Callback(vSERVER.MarketplaceCancel(Data["Id"]))
+	Callback(vSERVER.MarketplaceCancel(Data.Id))
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- RANKING
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNUICallback("Ranking",function(Data,Callback)
+	Callback(vSERVER.Ranking(Data.Column,Data.Direction))
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- DAILY
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNUICallback("Daily",function(Data,Callback)
+	Callback(vSERVER.Daily())
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- DAILYRESCUE
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNUICallback("DailyRescue",function(Data,Callback)
+	Callback(vSERVER.DailyRescue(Data.Day))
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- CODE
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNUICallback("Code",function(Data,Callback)
+	Callback(vSERVER.Code(Data.Code))
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PAUSE:NOTIFY
