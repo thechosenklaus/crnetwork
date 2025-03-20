@@ -77,36 +77,6 @@ local function CountCarousel()
 	return Carousel
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
--- PREMIUMDAYS
------------------------------------------------------------------------------------------------------------------------------------------
-function PremiumDays(source)
-    local Passport = vRP.Passport(source)
-    local Identity = vRP.Identity(Passport)
-    local Account = vRP.Account(Identity["License"])
-    local Level = Account["Level"]
-
-    local PremiumDay = 0
-    if Account["Premium"] and Account["Premium"] >= os.time() and Account["Level"] > 0 then
-        local Time = Account["Premium"] - os.time()
-        PremiumDay = math.floor(Time / 86400)
-    end
-    
-    local Hierarchy = Account["Level"]
-    local PremiumInfo = Premium[1]
-
-    local Display = Premium[math.random(#Premium)]
-    if Hierarchy > 0 then
-        Display = Premium[Hierarchy]
-        Hierarchy = Account["Level"]
-    end
-
-    return {
-        ["Active"] = PremiumDay,
-        ["Hierarchy"] = Hierarchy,
-        ["Display"] = Display
-    }
-end 
------------------------------------------------------------------------------------------------------------------------------------------
 -- HOME
 -----------------------------------------------------------------------------------------------------------------------------------------
 function Creative.Home()
@@ -145,7 +115,7 @@ function Creative.Home()
                     ["Playing"] = CompleteTimers(os.time() - Identity["Login"]),
                     ["Medic"] = Days,
                 },
-                ["Premium"] = PremiumDays(source),
+                ["Premium"] = Premium,
                 ["Shopping"] = CountShopping(Passport),
                 ["Carousel"] = CountCarousel(),
                 ["Box"] = Boxes[math.random(#Boxes)],
@@ -170,44 +140,43 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PREMIUMBUY
 -----------------------------------------------------------------------------------------------------------------------------------------
-function Creative.PremiumBuy(Index, SelectedOptionId)
+function Creative.PremiumBuy(Index, Selectables)
     local source = source
-
-    if type(SelectedOptionId) == "table" then
-        SelectedOptionId = SelectedOptionId["Id"] or 1
-    end
-
     local Passport = vRP.Passport(source)
-    if Passport and Premium[Index] then
+    if Passport then
         local Item = Premium[Index]
+        if not vRP.PaymentGems(Passport, Item.Price) then
+            local Coin = "Diamantes"
+            TriggerClientEvent("Notify",source,"Aviso",Coin.." insuficiente.","amarelo",5000)
+            return
+        end
 
-        if vRP.PaymentGems(Passport, Item["Price"]) then
-            exports["crons"]:Insert(Passport,"RemovePermission",30 * 1440,{ Permission = Item["Name"] })
+        exports["crons"]:Insert(Passport, "RemovePermission", Item.Duration / 86400, { Permission = Item.Permission })
+        vRP.SetPermission(Passport, Item.Permission)
 
-            if Item["Selectables"] then
-                for _, Selectable in ipairs(Item["Selectables"]) do
-                    if Selectable["Id"] == SelectedOptionId then
-                        for _, Option in ipairs(Selectable["Options"]) do
-                            local VehicleIndex = Option["Index"]
-							local RentalDays = Option["Amount"]
+        TriggerClientEvent("Notify",source,"Sucesso","Você adquiriu o pacote premium " .. Item.Name .. " com sucesso!","verde",5000)        
 
-                            if VehicleIndex then
-                                vRP.Query("vehicles/rentalVehicles", {
-                                    Passport = Passport,
-                                    vehicle = VehicleIndex,
-                                    plate = vRP.GeneratePlate(),
-                                    work = "false",
-									rental = RentalDays
-                                })
+        if Selectables then
+            for _, Selectable in ipairs(Selectables) do
+                if type(Selectable) == "table" and Selectable.Options then
+                    for _, Option in ipairs(Selectable.Options) do
+                        if type(Option) == "table" and Option.Index then
+                            local Vehicle = Option.Index
 
-                                TriggerClientEvent("Notify", source, "Sucesso", "Premium alugado com sucesso", "verde", 5000)
-                            end
+                            vRP.Query("vehicles/rentalVehicles", {
+                                Passport = Passport,
+                                Vehicle = Vehicle,
+                                Plate = vRP.GeneratePlate(),
+                                Weight = VehicleWeight(Vehicle),
+                                Work = 0,
+                                Days = 30
+                            })
+
+                            TriggerClientEvent("Notify",source,"Sucesso","Veículo " .. Vehicle .. " adicionado com sucesso!","verde",5000)
                         end
                     end
                 end
             end
-        else
-            TriggerClientEvent("Notify", source, "Erro", "Gems insuficientes para comprar este pacote.", "vermelho", 5000)
         end
     end
 end
