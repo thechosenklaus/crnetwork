@@ -515,14 +515,13 @@ function Creative.Ranking(Column, Direction)
         for _, Source in pairs(Players) do
             local OtherPassport = vRP.Passport(Source)
             local Identity = vRP.Identity(Passport)
-            local Playing = vRP.GetSrvData("Playing:"..Passport)
 
             Ranking[#Ranking + 1] = {
                 Name = vRP.FullName(OtherPassport),
                 Killed = Identity.Killed,
                 Death = Identity.Death,
                 Ratio = 0, -- Sem funcionamento pois Ratio = Razão porem retorna número
-                Status = Playing.Online,
+                Status = vRP.Source(OtherPassport),
                 Hours = os.time() - Identity.Login,
             }
         end
