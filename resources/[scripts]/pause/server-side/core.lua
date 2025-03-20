@@ -232,7 +232,7 @@ function Creative.StoreList()
         table.insert(Category, v["Category"])
 	end
 
-	return { Shop, Category }
+	return Shop,Category
 end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- DIAMONDSBUY
