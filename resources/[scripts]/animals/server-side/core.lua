@@ -30,6 +30,7 @@ end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNetEvent("animals:Delete")
 AddEventHandler("animals:Delete",function(source,Passport)
+	TriggerClientEvent("animals:Delete",source)
 	TriggerEvent("DeletePed", Animals[Passport])
 	Animals[Passport] = nil
 end)
