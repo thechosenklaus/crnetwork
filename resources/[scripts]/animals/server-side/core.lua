@@ -17,21 +17,30 @@ local Animals = {}
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ANIMALS
 -----------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("animals:Animals")
-AddEventHandler("animals:Animals",function(objNet)
+RegisterNetEvent("animals:Register")
+AddEventHandler("animals:Register",function(Networked)
 	local source = source
 	local Passport = vRP.Passport(source)
 	if Passport then
-		Animals[Passport] = objNet
+		Animals[Passport] = Networked
 	end
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- DELETE
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNetEvent("animals:Delete")
-AddEventHandler("animals:Delete",function()
-	local source = source
-	local Passport = vRP.Passport(source)
+AddEventHandler("animals:Delete",function(source,Passport)
+	TriggerEvent("DeletePed", Animals[Passport])
+	TriggerClientEvent("animals:Delete",source)
+	Animals[Passport] = nil
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- CLEANER
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNetEvent("animals:Cleaner")
+AddEventHandler("animals:Cleaner",function()
+ 	local source = source
+ 	local Passport = vRP.Passport(source)
 	if Passport then
 		TriggerEvent("DeletePed", Animals[Passport])
 		Animals[Passport] = nil

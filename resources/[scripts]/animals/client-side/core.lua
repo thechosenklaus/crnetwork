@@ -2,114 +2,113 @@
 -- VRP
 -----------------------------------------------------------------------------------------------------------------------------------------
 local Tunnel = module("vrp","lib/Tunnel")
-local Proxy = module("vrp","lib/Proxy")
 vRPS = Tunnel.getInterface("vRP")
-vRP = Proxy.getInterface("vRP")
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- VARIABLES
 -----------------------------------------------------------------------------------------------------------------------------------------
-local Hash = nil
-local Spawn = false
+local Animal = nil
 local Follow = false
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ANIMALS:DYNAMIC
 -----------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("animals:Dynamic")
-AddEventHandler("animals:Dynamic", function()
-    if Hash ~= nil then
-        exports["dynamic"]:AddMenu("Domésticos", "Tudo sobre animais domésticos.", "animals")
-        exports["dynamic"]:AddButton("Seguir", "Seguir o proprietário.", "animals:Functions", "follow", "animals", false)
-        exports["dynamic"]:AddButton("Colocar no Veículo", "Colocar o animal no veículo.", "animals:Functions", "putvehicle", "animals", false)
-        exports["dynamic"]:AddButton("Remover do Veículo", "Remover o animal no veículo.", "animals:Functions", "removevehicle", "animals", false)
-    end
+AddEventHandler("animals:Dynamic",function()
+	if Animal and DoesEntityExist(Animal) then
+		exports["dynamic"]:AddMenu("Domésticos","Todas as funções dos animais domésticos.","animal")
+		exports["dynamic"]:AddButton("Ficar/Seguir","Colocar o animal para te ficar/seguir.","animals:Functions","Seguir","animal",false)
+		exports["dynamic"]:AddButton("Guardar","Colocar o animal na casinha.","animals:Functions","Deletar","animal",false)
+
+		local Ped = PlayerPedId()
+		if IsPedInAnyVehicle(Ped) and not IsPedOnAnyBike(Ped) then
+			if not IsPedInAnyVehicle(Animal) then
+				exports["dynamic"]:AddButton("Colocar","Colocar o animal dentro do veículo.","animals:Functions","Colocar","animal",false)
+			end
+
+			if IsPedInAnyVehicle(Animal) then
+				exports["dynamic"]:AddButton("Remover","Retirar o animal de dentro do veículo.","animals:Functions","Remover","animal",false)
+			end
+		end
+	end
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- ANIMALS:DELETE
+-----------------------------------------------------------------------------------------------------------------------------------------
+RegisterNetEvent("animals:Delete")
+AddEventHandler("animals:Delete",function()
+	Animal = nil
+	Follow = false
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ANIMALS:SPAWN
 -----------------------------------------------------------------------------------------------------------------------------------------
 RegisterNetEvent("animals:Spawn")
-AddEventHandler("animals:Spawn", function(Model)
-	if Hash == nil then
-		if not Spawn then
-			Spawn = true
+AddEventHandler("animals:Spawn",function(Model)
+	if Animal and DoesEntityExist(Animal) then return end
 
-			local Ped = PlayerPedId()
-			local Heading = GetEntityHeading(Ped)
-			local Coords = GetOffsetFromEntityInWorldCoords(Ped, 0.0, 1.0, 0.0)
-			local Object, Network = vRPS.CreateModels(Model, Coords["x"], Coords["y"], Coords["z"], Heading, 28)
-			if Object then
-				local Spawn = 0
+	local Timeout = 5000
+	local Ped = PlayerPedId()
+	local StartTime = GetGameTimer()
+	local Coords = GetOffsetFromEntityInWorldCoords(Ped,0.0,1.0,0.0)
 
-				Hash = LoadNetwork(Network)
-				while not DoesEntityExist(Hash) and Spawn <= 1000 do
-					Hash = LoadNetwork(Network)
-					Spawn = Spawn + 1
-					Wait(1)
-				end
+	local Network = vRPS.CreateModels(Model,Coords.x,Coords.y,Coords.z,5)
+	if not Network then return end
 
-				Spawn = 0
-				local PedControl = NetworkRequestControlOfEntity(Hash)
-				while not PedControl and Spawn <= 1000 do
-					PedControl = NetworkRequestControlOfEntity(Hash)
-					Spawn = Spawn + 1
-					Wait(1)
-				end
-
-				SetPedCanRagdoll(Hash, false)
-				SetEntityInvincible(Hash, true)
-				SetPedFleeAttributes(Hash, 0, 0)
-				SetEntityAsMissionEntity(Hash, true, false)
-				SetBlockingOfNonTemporaryEvents(Hash, true)
-				SetPedRelationshipGroupHash(Hash, GetHashKey("k9"))
-				GiveWeaponToPed(Hash, GetHashKey("WEAPON_ANIMAL"), 200, true, true)
-
-				SetEntityAsNoLongerNeeded(Hash)
-
-				TriggerEvent("animals:Functions", "follow")
-
-				TriggerServerEvent("animals:Animals",Network)
-			end
-
-			Spawn = false
+	Animal,AnimalNet = LoadNetwork(Network)
+	while not DoesEntityExist(Animal) do
+		if GetGameTimer() - StartTime > Timeout then
+			return
 		end
-	else
-		TriggerServerEvent("animals:Delete")
-		Follow = false
-		Hash = nil
+
+		Wait(100)
 	end
+
+	ClearPedTasks(Animal)
+	SetPedKeepTask(Animal,true)
+	SetPedCanRagdoll(Animal,false)
+	SetEntityInvincible(Animal,true)
+	SetPedFleeAttributes(Animal,0,0)
+	SetEntityAsMissionEntity(Animal,true,false)
+	SetBlockingOfNonTemporaryEvents(Animal,true)
+	SetPedRelationshipGroupHash(Animal,GetHashKey("k9"))
+	TaskFollowToOffsetOfEntity(Animal,Ped,0.5,0.0,0.0,5.0,-1,0.0,1)
+	GiveWeaponToPed(Animal,GetHashKey("WEAPON_ANIMAL"),200,true,true)
+
+	TriggerServerEvent("animals:Register",AnimalNet)
+	TriggerEvent("dynamic:Close")
+
+	SetEntityAsNoLongerNeeded(Animal)
+	SetModelAsNoLongerNeeded(Animal)
+
+	Follow = true
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- ANIMALS:FUNCTIONS
 -----------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("animals:Functions")
-AddEventHandler("animals:Functions", function(Functions)
-	if Hash ~= nil then
-		local Ped = PlayerPedId()
-		if Functions == "follow" then
-			if not Follow then
-				TaskFollowToOffsetOfEntity(Hash, Ped, 1.0, 1.0, 0.0, 5.0, -1, 2.5, 1)
-				SetPedKeepTask(Hash, true)
-				Follow = true
-			else
-				SetPedKeepTask(Hash, false)
-				ClearPedTasks(Hash)
-				Follow = false
-			end
-		elseif Functions == "putvehicle" then
-			if IsPedInAnyVehicle(Ped) and not IsPedOnAnyBike(Ped) then
-				local Vehicle = GetVehiclePedIsUsing(Ped)
-				if IsVehicleSeatFree(Vehicle, 0) then
-					TaskEnterVehicle(Hash, Vehicle, -1, 0, 2.0, 16, 0)
-				end
-			end
-		elseif Functions == "removevehicle" then
-			if IsPedInAnyVehicle(Ped) and not IsPedOnAnyBike(Ped) then
-				TaskLeaveVehicle(Hash, GetVehiclePedIsUsing(Ped), 256)
-				TriggerEvent("animals:Functions", "follow")
-			end
-		elseif Functions == "destroy" then
-			TriggerServerEvent("animals:Delete")
-			Follow = false
-			Hash = nil
+AddEventHandler("animals:Functions",function(Mode)
+	if not Animal or not DoesEntityExist(Animal) then return end
+
+	local Ped = PlayerPedId()
+	local Vehicle = GetVehiclePedIsUsing(Ped)
+
+	if Mode == "Seguir" then
+		ClearPedTasks(Animal)
+
+		if Follow then
+			SetPedKeepTask(Animal,false)
+		else
+			SetPedKeepTask(Animal,true)
+			TaskFollowToOffsetOfEntity(Animal,Ped,0.5,0.0,0.0,5.0,-1,0.0,1)
 		end
+
+		Follow = not Follow
+	elseif Mode == "Colocar" and Vehicle and IsVehicleSeatFree(Vehicle,0) then
+		TaskEnterVehicle(Animal,Vehicle,-1,0,1.0,16,0)
+	elseif Mode == "Remover" and Vehicle then
+		TaskLeaveVehicle(Animal,Vehicle,16)
+		Follow = false
+	elseif Mode == "Deletar" then
+		TriggerServerEvent("animals:Cleaner")
+		TriggerEvent("dynamic:Close")
+		Follow = false
+		Animal = nil
 	end
 end)
