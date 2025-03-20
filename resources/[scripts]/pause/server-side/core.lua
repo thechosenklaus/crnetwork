@@ -540,7 +540,7 @@ function Creative.Daily()
 
     if Passport then
         local Identity = vRP.Identity(Passport)
-        return { Identity["Daily"], Identity["DailyReward"], #Daily }
+        return { Identity["Daily"], Identity["DailyReward"] - 1, #Daily }
     end
 
     return {}
