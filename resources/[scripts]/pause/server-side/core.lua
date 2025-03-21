@@ -140,9 +140,10 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PREMIUMBUY
 -----------------------------------------------------------------------------------------------------------------------------------------
-function Creative.PremiumBuy(Index)
+function Creative.PremiumBuy(Index, Select)
     local source = source
     local Passport = vRP.Passport(source)
+
     if Passport then
         local Item = Premium[Index]
         if Item then
@@ -151,6 +152,22 @@ function Creative.PremiumBuy(Index)
                 exports["crons"]:Insert(Passport,"RemovePermission",Item.Duration * 1440,{ Permission = Item.Permission })
                 vRP.SetPermission(Passport,Item.Permission)
                 TriggerClientEvent("Notify",source,"Sucesso","Premium comprado com sucesso.","verde",5000)
+
+                if Item.Selectables then
+                    for Number, v in ipairs(Item.Selectables) do
+                        local Option = v.Options[Select[Number]]
+                        if Option then
+                            vRP.Query("vehicles/rentalVehicles", {
+                                Passport = Passport,
+                                Vehicle = Option.Index,
+                                Plate = vRP.GeneratePlate(),
+                                Weight = VehicleWeight(Option.Index),
+                                Work = 0,
+                                Rental = Option.Duration
+                            })
+                        end
+                    end
+                end
             end
         end
     end
@@ -531,7 +548,7 @@ function Creative.DailyRescue(Day)
         local Identity = vRP.Identity(Passport)
         local Reward = Identity["DailyReward"]
 
-        if Day == Reward and os.date("%d-%m-%y") ~= Identity["Daily"] then
+        if Day == Reward - 1 and os.date("%d-%m-%y") ~= Identity["Daily"] then
             for Item, Amount in pairs(Daily[Day]) do
                 vRP.GenerateItem(Passport, Item, Amount, false)
                 TriggerClientEvent("pause:Notify", source, "Item Recebido.", "Você recebeu <b>" .. Amount .. "x " .. ItemName(Item) .. "</b>.", "verde")
