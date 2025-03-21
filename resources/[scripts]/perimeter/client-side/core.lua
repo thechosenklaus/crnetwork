@@ -15,7 +15,6 @@ local Perimeter = {}
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PERIMETER:DYNAMIC
 -----------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("perimeter:Dynamic")
 AddEventHandler("perimeter:Dynamic",function()
 	exports["dynamic"]:AddMenu("Perimetros","Visualizar/Gerenciar perimetros.","perimeter")
 	exports["dynamic"]:AddButton("Adicionar","Demarcar novo local no mapa.","perimeter:New","","perimeter",true)
@@ -59,8 +58,7 @@ AddEventHandler("perimeter:List",function(Table)
 	Perimeter = Table
 
 	for Selected,v in pairs(Perimeter) do
-		local Coord = v.Coords
-		Blip[Selected] = AddBlipForRadius(Coord.x,Coord.y,Coord.z,v.Distance + 0.0)
+		Blip[Selected] = AddBlipForRadius(v.Coords,v.Distance + 0.0)
 		SetBlipAlpha(Blip[Selected],200)
 		SetBlipColour(Blip[Selected],1)
 	end

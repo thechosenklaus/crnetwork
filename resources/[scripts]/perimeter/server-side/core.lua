@@ -1,21 +1,38 @@
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- VRP
 -----------------------------------------------------------------------------------------------------------------------------------------
-local Tunnel = module("vrp", "lib/Tunnel")
-local Proxy = module("vrp", "lib/Proxy")
+local Tunnel = module("vrp","lib/Tunnel")
+local Proxy = module("vrp","lib/Proxy")
+vRPC = Tunnel.getInterface("vRP")
 vRP = Proxy.getInterface("vRP")
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- CONNECTION
 -----------------------------------------------------------------------------------------------------------------------------------------
-local Creative = {}
-Tunnel.bindInterface("perimeter", Creative)
-local vKEYBOARD = Tunnel.getInterface("keyboard")
+Creative = {}
+Tunnel.bindInterface("perimeter",Creative)
+vKEYBOARD = Tunnel.getInterface("keyboard")
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- VARIABLES
 -----------------------------------------------------------------------------------------------------------------------------------------
 local Perimeters = {}
 -----------------------------------------------------------------------------------------------------------------------------------------
--- PERIMETERS
+-- THREADINITPERIMETERS
+-----------------------------------------------------------------------------------------------------------------------------------------
+CreateThread(function()
+    local Consult = vRP.GetSrvData("Perimeters",true)
+    for k,v in pairs(Consult) do
+        Perimeters[k] = {
+            Passport = v.Passport,
+            Name = v.Name,
+            Distance = v.Distance,
+            Coords = vec3(v.Coords.x,v.Coords.y,v.Coords.z)
+        }
+    end
+
+    TriggerClientEvent("perimeter:List",-1,Perimeters)
+end)
+-----------------------------------------------------------------------------------------------------------------------------------------
+-- PERIMETROS
 -----------------------------------------------------------------------------------------------------------------------------------------
 function Creative.Perimeters()
     return Perimeters
@@ -23,65 +40,67 @@ end
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PERIMETER:NEW
 -----------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("perimeter:New")
-AddEventHandler("perimeter:New", function()
-    local source = source
-    local Passport = vRP.Passport(source)
-    if Passport and vRP.HasGroup(Passport, "Policia") then
-        TriggerClientEvent("dynamic:Close", source)
+RegisterServerEvent("perimeter:New")
+AddEventHandler("perimeter:New",function()
+    local Source = source
+    local Passport = vRP.Passport(Source)
+    if not Passport or not vRP.HasGroup(Passport,"Policia") then return end
 
-        local Keyboard = vKEYBOARD.Secondary(source, "Nome", "Distancia")
+    local Keyboard = vKEYBOARD.Secondary(Source,"Nome:","Distância:")
+    if Keyboard then
+        local Name = Keyboard[1]
+        local Distance = tonumber(Keyboard[2])
 
-        if not Keyboard or not Keyboard[1] or not Keyboard[2] then
+        if not Name or string.len(Name) < 3 then
+            TriggerClientEvent("Notify",Source,"Aviso","O nome do perímetro deve ter ao menos <b>3 caracteres</b>.",8000)
             return
         end
 
-        local Title = Keyboard[1]
-        local Distance = parseInt(Keyboard[2])
-
-        if Title == "" then
-            TriggerClientEvent("Notify",source,"Erro","Título inválido.", "vermelho",5000)
+        if not Distance or Distance <= 0 then
+            TriggerClientEvent("Notify",Source,"Aviso","A distância deve ser um valor válido.",8000)
             return
         end
 
-        if Distance < 5 then
-            TriggerClientEvent("Notify",source,"Erro","O perímetro deve ter mais de 5m.", "vermelho",5000)
-            return
-        end
+        local Selected
+        repeat
+            Selected = GenerateString("DDLLDDLL")
+        until Selected and not Perimeters[Selected]
 
-        local Ped = GetPlayerPed(source)
-        local Coords = GetEntityCoords(Ped)        
-        table.insert(Perimeters, { Name = Title, Coords = Coords, Distance = Distance })
-        local Index = #Perimeters
+        Perimeters[Selected] = {
+            Passport = Passport,
+            Name = Name,
+            Distance = Distance,
+            Coords = GetEntityCoords(GetPlayerPed(Source))
+        }
 
-        TriggerClientEvent("perimeter:Add", -1, Index, Perimeters[Index])
-        TriggerClientEvent("Notify",-1,"Informativo Policial","Informamos que o perímetro <b>" .. Title .. "</b> encontra-se fechado para circulação, pedimos a compreensão de todos e orientamos que busquem rotas alternativas, agradecemos pela colaboração.","policia",5000)
+        vRP.SetSrvData("Perimeters",Perimeters,true)
+
+        TriggerClientEvent("perimeter:Add",-1,Selected,Perimeters[Selected])
+        TriggerClientEvent("dynamic:AddButton",Source,Name,"Remover o perímetro.","perimeter:Remove",Selected,"perimeter",true)
+
+        TriggerClientEvent("Notify",-1,"Informativo Policial","Informamos que o perímetro <b>"..Name.."</b> encontra-se fechado para circulação, pedimos a compreensão de todos e orientamos que busquem rotas alternativas, agradecemos pela colaboração.","policia",15000)
     end
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- PERIMETER:REMOVE
 -----------------------------------------------------------------------------------------------------------------------------------------
-RegisterNetEvent("perimeter:Remove")
-AddEventHandler("perimeter:Remove", function(Index)
-    local source = source
-    local Passport = vRP.Passport(source)
-    if Passport and vRP.HasGroup(Passport, "Policia") then
-        if Perimeters[Index] then
-            local Title = Perimeters[Index].Name
-            TriggerClientEvent("dynamic:Close", source)
-            table.remove(Perimeters, Index)
-            TriggerClientEvent("perimeter:Remove", -1, Index)
-            TriggerClientEvent("Notify",-1,"Informativo Policial","Informamos que o perímetro <b>" .. Title .. "</b> encontra-se liberado para circulação, agradecemos pela colaboração e pedimos que todos sigam as orientações de segurança.","policia",5000)
-        else
-            TriggerClientEvent("Notify", source, "Erro","Perímetro não encontrado.","vermelho",5000)
-        end
-    end
+RegisterServerEvent("perimeter:Remove")
+AddEventHandler("perimeter:Remove",function(Selected)
+    local Source = source
+    local Passport = vRP.Passport(Source)
+    if not Perimeters[Selected] or not Passport or not vRP.HasGroup(Passport,"Policia") then return end
+
+    TriggerClientEvent("Notify",-1,"Informativo Policial","Informamos que o perímetro <b>"..Perimeters[Selected].Name.."</b> encontra-se liberado para circulação, agradecemos pela colaboração e pedimos que todos sigam as orientações de segurança.","policia",15000)
+
+    Perimeters[Selected] = nil
+    vRP.SetSrvData("Perimeters",Perimeters,true)
+
+    TriggerClientEvent("perimeter:Remove",-1,Selected)
+    TriggerClientEvent("dynamic:Close",Source)
 end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- CONNECT
 -----------------------------------------------------------------------------------------------------------------------------------------
-AddEventHandler("Connect", function(Passport, Source)
-    SetTimeout(2000, function()
-        TriggerClientEvent("perimeter:List", Source, Perimeters)
-    end)
+AddEventHandler("Connect",function(Passport,Source)
+    TriggerClientEvent("perimeter:List",Source,Perimeters)
 end)
