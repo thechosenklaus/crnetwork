@@ -649,7 +649,7 @@ function Creative.RolepassRescue(Mode, Number)
             if RoleItens[Mode][Number] then
                 local Item = RoleItens[Mode][Number]["Item"]
                 local ItemAmount = RoleItens[Mode][Number]["Amount"]
-                vRP.RolepassPayment(Passport,ItemAmount,Mode)
+                vRP.RolepassPayment(Passport,RolepassPoints,Mode)
                 vRP.GenerateItem(Passport, Item, ItemAmount, false)
                 TriggerClientEvent("pause:Notify", source, "Item Recebido.", "Você recebeu <b>" .. ItemAmount .. "x " .. ItemName(Item) .. "</b>.", "verde")
                 return true
