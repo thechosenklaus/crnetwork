@@ -558,7 +558,7 @@ function Creative.DailyRescue(Day)
 
             return Day
         else
-            TriggerClientEvent("pause:Notify", source, "Atenção", "Você não pode regatar esse item pois ja resgatou um hoje.", "vermelho")
+            TriggerClientEvent("pause:Notify", source, "Atenção", "Você não pode regatar a <b>Recompensa Diária</b> mais de uma vez no mesmo dia, espere até amanhã!", "vermelho")
         end
     end
 
