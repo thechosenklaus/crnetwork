@@ -32,15 +32,15 @@ end)
 -----------------------------------------------------------------------------------------------------------------------------------------
 -- COUNTSHOPPING
 -----------------------------------------------------------------------------------------------------------------------------------------
-local function CountShopping(Passport)
+local function CountShopping()
 	local Shopping = {}
-    local History = vRP.UserData(Passport, "Shopping")
+    local History = vRP.GetSrvData("Shopping")
 
 	for k, v in pairs(History) do
-
+        local Identity = vRP.Identity(v["Passport"])
 		Shopping[#Shopping + 1] = {
 			["Image"] = ItemIndex(v["Name"]),
-			["Name"] = ItemName(v["Name"]),
+			["Name"] = Identity["Name"],
 			["Index"] = ItemIndex(v["Name"]),
 			["Amount"] = v["Amount"],
 			["Price"] = v["Price"],
@@ -112,11 +112,10 @@ function Creative.Home()
                     ["Bank"] = Identity["Bank"],
                     ["Phone"] = vRP.Phone(Passport),
                     ["Gemstone"] = vRP.UserGemstone(Identity["License"]),
-                    ["Playing"] = CompleteTimers(os.time() - Identity["Login"]),
+                    ["Playing"] = CompleteTimers(os.time() - Identity["Created"]),
                     ["Medic"] = Days,
                 },
-                ["Premium"] = Premium,
-                ["Shopping"] = CountShopping(Passport),
+                ["Shopping"] = CountShopping(),
                 ["Carousel"] = CountCarousel(),
                 ["Box"] = Boxes[math.random(#Boxes)],
                 ["Levels"] = TableLevel(),
@@ -205,7 +204,7 @@ function Creative.StoreBuy(Item, Amount)
 		local Price = ShopItens[Item]["Price"] * ((100 - ShopItens[Item]["Discount"]) / 100)
 
 		if vRP.PaymentGems(Passport, Amount * Price) then
-            local Shopping = vRP.UserData(Passport, "Shopping") or {}
+            local Shopping = vRP.GetSrvData("Shopping") or {}
             Shopping[#Shopping + 1] = {
                 ['Passport'] = Passport,
                 ['Name'] = Item,
@@ -213,7 +212,9 @@ function Creative.StoreBuy(Item, Amount)
                 ['Price'] = parseInt(ShopItens[Item]["Price"] * ShopItens[Item]["Discount"]),
                 ['Discount'] = ShopItens[Item]["Discount"],
 		    }
-            vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Shopping", Information = json.encode(Shopping) })
+            vRP.SetSrvData("Shopping", Shopping, true)
+            TriggerClientEvent("pause:Notify", source, "Sucesso", "Compra concluida.", "verde")
+            -- vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Shopping", Information = json.encode(Shopping) })
 			vRP.GenerateItem(Passport, Item, Amount)
 		end
 
