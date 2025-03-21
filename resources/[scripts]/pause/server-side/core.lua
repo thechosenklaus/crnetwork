@@ -548,7 +548,7 @@ function Creative.DailyRescue(Day)
         local Identity = vRP.Identity(Passport)
         local Reward = Identity["DailyReward"]
 
-        if Day == Reward - 1 and os.date("%d-%m-%y") ~= Identity["Daily"] then
+        if Day == Reward and Identity["Daily"] ~= os.date("%d-%m-%y") then
             for Item, Amount in pairs(Daily[Day]) do
                 vRP.GenerateItem(Passport, Item, Amount, false)
                 TriggerClientEvent("pause:Notify", source, "Item Recebido.", "Você recebeu <b>" .. Amount .. "x " .. ItemName(Item) .. "</b>.", "verde")
