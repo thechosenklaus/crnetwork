@@ -295,10 +295,10 @@ function Creative.Marketplace()
         for Id, Item in pairs(Datatable) do
             List[#List + 1] = {
                 Id = Id,
-                Key = Item["key"],
-                Name = ItemName(Item["item"]),
-                Price = Item["price"],
-                Amount = Item["quantity"]
+                Key = Item["Key"],
+                Name = ItemName(Item["Item"]),
+                Price = Item["Price"],
+                Amount = Item["Quantity"]
             }
         end
 
@@ -322,17 +322,15 @@ function Creative.MarketplaceInventory(Mode)
             local Datatable = vRP.GetSrvData("Marketplace")
             local PlayerItems = {}
             for k, v in ipairs(Datatable) do
-                if tonumber(v["passport"]) == tonumber(Passport) then
-                    local Item = {
+                if tonumber(v["Passport"]) == tonumber(Passport) then
+                    PlayerItems[#PlayerItems + 1] = {
                         Id = k,
-                        Key = ItemIndex(v["item"]),
-                        Name = ItemName(v["item"]),
-                        Item = v["item"],
-                        Price = v["price"],
-                        Amount = v["quantity"],
+                        Key = ItemIndex(v["Item"]),
+                        Name = ItemName(v["Item"]),
+                        Item = v["Item"],
+                        Price = v["Price"],
+                        Amount = v["Quantity"],
                     }
-
-                    PlayerItems[#PlayerItems + 1] = Item
                 end
             end
             if #PlayerItems > 0 then
@@ -342,16 +340,14 @@ function Creative.MarketplaceInventory(Mode)
 
         if Mode == "Create" then
             for Id, Slot in pairs(Inventory) do
-                if Slot["item"] and not vRP.CheckDamaged(Slot["item"]) then
-                    local Item = {
+                if Slot["item"] and not vRP.CheckDamaged(Slot["item"])  then
+                    Marketplace[#Marketplace + 1] = {
                         Id = Id,
                         Key = ItemIndex(Slot["item"]),
                         Name = ItemName(Slot["item"]),
                         Item = Slot["item"],
                         Amount = Slot["amount"],
                     }
-
-                    Marketplace[#Marketplace + 1] = Item
                 end
             end
         end
@@ -373,13 +369,13 @@ function Creative.MarketplaceList(Mode)
         local Datatable = vRP.GetSrvData("Marketplace")
 
         for Id, Item in ipairs(Datatable) do
-            if tonumber(Item["passport"]) == tonumber(Passport) then
+            if tonumber(Item["Passport"]) == tonumber(Passport) then
                 Marketplace[#Marketplace + 1] = {
                     Id = Id,
-                    Key = Item["key"],
-                    Name = ItemName(Item["item"]),
-                    Price = Item["price"],
-                    Amount = Item["quantity"]
+                    Key = Item["Key"],
+                    Name = ItemName(Item["Item"]),
+                    Price = Item["Price"],
+                    Amount = Item["Quantity"]
                 }
             end
         end
@@ -409,11 +405,11 @@ function Creative.MarketplaceAnnounce(Data)
             local Amount = Data["Amount"]
 
             Datatable[#Datatable + 1] = {
-                passport = Passport,
-                key = ItemIndex(Item),
-                item = Item,
-                price = Price,
-                quantity = Amount,
+                Passport = Passport,
+                Key = ItemIndex(Item),
+                Item = Item,
+                Price = Price,
+                Quantity = Amount,
             }
 
             vRP.SetSrvData("Marketplace", Datatable, true)
@@ -438,20 +434,20 @@ function Creative.MarketplaceBuy(Id)
         local Datatable = vRP.GetSrvData("Marketplace")
 
         if Datatable[Id] then
-            if tostring(Datatable[Id]["passport"]) == tostring(Passport) then
+            if tostring(Datatable[Id]["Passport"]) == tostring(Passport) then
                 TriggerClientEvent("pause:Notify", source, "Você não pode comprar seu próprio item.", "Verifique o item antes de comprar.")
                 return false
             end
-            if vRP.CheckWeight(Passport,Datatable[Id]["item"]) and not vRP.MaxItens(Passport,Datatable[Id]["item"]) then
-                if vRP.PaymentFull(Passport, Datatable[Id]["price"]) then
-                    vRP.GiveBank(Datatable[Id]["passport"], Datatable[Id]["price"])
-                    vRP.GiveItem(Passport, Datatable[Id]["item"], Datatable[Id]["quantity"])
+            if vRP.CheckWeight(Passport,Datatable[Id]["Item"]) and not vRP.MaxItens(Passport,Datatable[Id]["Item"]) then
+                if vRP.PaymentFull(Passport, Datatable[Id]["Price"]) then
+                    vRP.GiveBank(Datatable[Id]["Passport"], Datatable[Id]["Price"])
+                    vRP.GiveItem(Passport, Datatable[Id]["Price"], Datatable[Id]["Quantity"])
                     
                     TriggerClientEvent("pause:Notify", source, "Compra realizada com sucesso.", "Verifique seu Inventario", "verde")
                     
-                    local seller = vRP.Source(Datatable[Id]["passport"])
+                    local seller = vRP.Source(Datatable[Id]["Passport"])
                     if seller then
-                        TriggerClientEvent("Notify", seller, "Sucesso", "Seu item foi vendido por $" .. Datatable[Id]["price"] .. ".", "verde", 5000)
+                        TriggerClientEvent("Notify", seller, "Sucesso", "Seu item foi vendido por $" .. Datatable[Id]["Price"] .. ".", "verde", 5000)
                     end
 
                     Datatable[Id] = nil
@@ -482,7 +478,7 @@ function Creative.MarketplaceCancel(Id)
         local Datatable = vRP.GetSrvData("Marketplace")
 
         if Datatable[Id] then
-            vRP.GiveItem(Passport, Datatable[Id]["item"], Datatable[Id]["quantity"])
+            vRP.GiveItem(Passport, Datatable[Id]["Item"], Datatable[Id]["Quantity"])
             Datatable[Id] = nil
 
             TriggerClientEvent("pause:Notify", source, "Item cancelado com sucesso.", "Verifique o seu Inventorio.")
