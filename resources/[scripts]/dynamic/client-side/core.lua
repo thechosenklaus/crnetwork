@@ -142,6 +142,21 @@ RegisterCommand("PlayerFunctions",function()
 			exports["dynamic"]:AddButton("Capô","Abrir capô.","player:Doors","6","doors",true)
 		end
 
+		local Painels = 0
+		for Permission,v in pairs(Groups) do
+			if not v.Block and LocalPlayer.state[Permission] then
+				if Painels == 0 then
+					exports["dynamic"]:AddMenu("Computador","Abrir o software dos grupos.","painel")
+				end
+
+				local Event = (Permission == "LSPD" or Permission == "BCSO") and "mdt:Open" or "painel:Opened"
+
+				exports["dynamic"]:AddButton(v.Name or Permission,"Painel de Controle do usuário.",Event,Permission,"painel",true)
+
+				Painels = Painels + 1
+			end
+		end
+
 		exports["dynamic"]:AddMenu("Outros","Todas as funções do personagem.","others")
 		exports["dynamic"]:AddButton("Lixeiro","Marcar/Desmarcar sacos no mapa.","farmer:Blips","","others",false)
 		exports["dynamic"]:AddButton("Propriedades","Marcar/Desmarcar propriedades no mapa.","propertys:Blips","","others",false)
