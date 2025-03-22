@@ -340,7 +340,7 @@ function Creative.MarketplaceInventory(Mode)
 
         if Mode == "Create" then
             for Id, Slot in pairs(Inventory) do
-                if Slot["item"] and not vRP.CheckDamaged(Slot["item"])  then
+                if Slot["item"] and not vRP.CheckDamaged(Slot["item"]) and not BlockMarket(Slot["item"]) then
                     Marketplace[#Marketplace + 1] = {
                         Id = Id,
                         Key = ItemIndex(Slot["item"]),
