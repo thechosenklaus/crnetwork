@@ -80,6 +80,7 @@ function Creative.ServerVehicle(Model,Coords,Plate,Nitrox,Doors,Body,Fuel,Seatbe
 		Entity(Vehicle)["state"]:set("Nitro",Nitrox or 0,true)
 		Entity(Vehicle)["state"]:set("Drift",Drift or false,true)
 		Entity(Vehicle)["state"]:set("Seatbelt",Seatbelt or false,true)
+		SetVehicleDoorsLocked(Vehicle,2)
 
 		return true,NetworkGetNetworkIdFromEntity(Vehicle),Vehicle,Plate
 	end
