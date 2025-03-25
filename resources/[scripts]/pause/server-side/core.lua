@@ -498,29 +498,32 @@ function Creative.Ranking(Column, Direction)
     
     if Passport then
         local Ranking = {}
-        local Players = vRP.Players()
+        local Consult = vRP.Query("accounts/All",{})
 
-        for _, Source in pairs(Players) do
-            local OtherPassport = vRP.Passport(Source)
-            local Identity = vRP.Identity(Passport)
+        for k,v in pairs(Consult) do
+            local Characters = vRP.Query("characters/Characters",{ License = v.License })
 
-            local Killed = Identity.Killed or 0
-            local Death = Identity.Death or 0
-            local Ratio = 0
-            if Death > 0 then
-                Ratio = Killed / Death
-            elseif Killed > 0 then
-                Ratio = Killed
+            for k,v in pairs(Characters) do
+                local Identity = vRP.Identity(v.id)
+
+                local Killed = Identity.Killed or 0
+                local Death = Identity.Death or 0
+                local Ratio = 0
+                if Death > 0 then
+                    Ratio = Killed / Death
+                elseif Killed > 0 then
+                    Ratio = Killed
+                end
+
+                Ranking[#Ranking + 1] = {
+                    Name = vRP.FullName(v.id),
+                    Killed = Killed,
+                    Death = Death,
+                    Ratio = Ratio,
+                    Status = vRP.Source(v.id),
+                    Hours = os.time() - Identity.Created,
+                }
             end
-
-            Ranking[#Ranking + 1] = {
-                Name = vRP.FullName(OtherPassport),
-                Killed = Killed,
-                Death = Death,
-                Ratio = Ratio,
-                Status = vRP.Source(OtherPassport),
-                Hours = os.time() - Identity.Created,
-            }
         end
 
         return Ranking
