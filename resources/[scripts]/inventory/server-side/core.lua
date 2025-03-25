@@ -1617,10 +1617,6 @@ AddEventHandler("SaveServer",function(Silenced)
 			vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Attachs", Information = json.encode(Users["Attachs"][Passport]) })
 		end
 
-		if Users["Skins"] and Users["Skins"][Passport] then
-			vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Skins", Information = json.encode(Users["Skins"][Passport]) })
-		end
-
 		if Users["Blueprints"] and Users["Blueprints"][Passport] then
 			vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Blueprints", Information = json.encode(Users["Blueprints"][Passport]) })
 		end
@@ -1644,11 +1640,6 @@ AddEventHandler("Disconnect",function(Passport)
 	if Users["Attachs"] and Users["Attachs"][Passport] then
 		vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Attachs", Information = json.encode(Users["Attachs"][Passport]) })
 		Users["Attachs"][Passport] = nil
-	end
-
-	if Users["Skins"] and Users["Skins"][Passport] then
-		vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Skins", Information = json.encode(Users["Skins"][Passport]) })
-		Users["Skins"][Passport] = nil
 	end
 
 	if Users["Blueprints"] and Users["Blueprints"][Passport] then
@@ -1692,10 +1683,6 @@ end)
 AddEventHandler("Connect",function(Passport,source)
 	if not Users["Ammos"][Passport] then
 		Users["Ammos"][Passport] = vRP.UserData(Passport,"Ammos")
-	end
-
-	if not Users["Skins"][Passport] then
-		Users["Skins"][Passport] = vRP.UserData(Passport,"Skins")
 	end
 
 	if not Users["Attachs"][Passport] then
