@@ -214,7 +214,6 @@ function Creative.StoreBuy(Item, Amount)
 		    }
             vRP.SetSrvData("Shopping", Shopping, true)
             TriggerClientEvent("pause:Notify", source, "Sucesso", "Compra concluida.", "verde")
-            -- vRP.Query("playerdata/SetData",{ Passport = Passport, Name = "Shopping", Information = json.encode(Shopping) })
 			vRP.GenerateItem(Passport, Item, Amount)
 		end
 
@@ -505,13 +504,22 @@ function Creative.Ranking(Column, Direction)
             local OtherPassport = vRP.Passport(Source)
             local Identity = vRP.Identity(Passport)
 
+            local Killed = Identity.Killed or 0
+            local Death = Identity.Death or 0
+            local Ratio = 0
+            if Death > 0 then
+                Ratio = Killed / Death
+            elseif Killed > 0 then
+                Ratio = Killed
+            end
+
             Ranking[#Ranking + 1] = {
                 Name = vRP.FullName(OtherPassport),
-                Killed = Identity.Killed,
-                Death = Identity.Death,
-                Ratio = 0, -- Sem funcionamento pois Ratio = Razão porem retorna número
+                Killed = Killed,
+                Death = Death,
+                Ratio = Ratio,
                 Status = vRP.Source(OtherPassport),
-                Hours = os.time() - Identity.Login,
+                Hours = os.time() - Identity.Created,
             }
         end
 
