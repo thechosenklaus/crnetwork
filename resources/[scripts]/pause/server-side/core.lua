@@ -586,7 +586,7 @@ function Creative.Code(Code)
             ["BRONZE"] = "BRONZE",
         }
 
-        if ValidCodes[string.upper(Code)] then  
+        if ValidCodes[string.upper(Code)] then
         end
     end
 end
