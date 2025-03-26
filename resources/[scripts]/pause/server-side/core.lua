@@ -509,10 +509,8 @@ function Creative.Ranking(Column, Direction)
             local Characters = vRP.Query("characters/Characters",{ License = v.License })
 
             for k,v in pairs(Characters) do
-                local Identity = vRP.Identity(v.id)
-
-                local Killed = Identity.Killed or 0
-                local Death = Identity.Death or 0
+                local Killed = v.Killed or 0
+                local Death = v.Death or 0
                 local Ratio = 0
                 if Death > 0 then
                     Ratio = Killed / Death
@@ -526,7 +524,7 @@ function Creative.Ranking(Column, Direction)
                     Death = Death,
                     Ratio = Ratio,
                     Status = vRP.Source(v.id),
-                    Hours = os.time() - Identity.Created,
+                    Hours = os.time() - v.Created,
                 }
             end
         end
