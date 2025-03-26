@@ -102,6 +102,11 @@ function Creative.Home()
                 local Seconds = Medic - Hour
                 Days = (Seconds > 0) and math.ceil(Seconds / 86400) or 0
             end
+
+            repeat
+                Box1 = math.random(#Boxes)
+                Box2 = math.random(#Boxes)
+            until Box1 and Box2 and Box1 ~= Box2 and not Boxes[Selected]
             
             return {
                 ["Information"] = {
@@ -117,7 +122,7 @@ function Creative.Home()
                 },
                 ["Shopping"] = CountShopping(),
                 ["Carousel"] = CountCarousel(),
-                ["Boxes"] = { Boxes[math.random(#Boxes)], Boxes[math.random(#Boxes)] },
+                ["Boxes"] = { Boxes[Box1], Boxes[Box2] },
                 ["Levels"] = TableLevel(),
                 ["Experience"] = Experiences,
             }
