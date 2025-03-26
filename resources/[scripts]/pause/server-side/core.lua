@@ -117,7 +117,7 @@ function Creative.Home()
                 },
                 ["Shopping"] = CountShopping(),
                 ["Carousel"] = CountCarousel(),
-                ["Box"] = Boxes[math.random(#Boxes)],
+                ["Boxes"] = { Boxes[math.random(#Boxes)], Boxes[math.random(#Boxes)] },
                 ["Levels"] = TableLevel(),
                 ["Experience"] = Experiences,
             }
